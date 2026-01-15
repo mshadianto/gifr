@@ -54,4 +54,4 @@ Built by **MS Hadianto** during the GIFR Second Partner Meeting in Jeddah, 12 Ja
 
 ## License
 
-Proprietary - Global Islamic Fund for Refugees
+MIT License - MS Hadianto
