@@ -380,6 +380,7 @@ What would you like to know? 🤲`);
       }
 
       setChatMessages(prev => [...prev, response]);
+    }, 2000);
   };
 
   // Geometric Islamic Pattern SVG
