@@ -1,4 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from 'recharts';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix Leaflet marker icons
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+});
 
 // GIFR Donor Concierge - Islamic Philanthropy Dashboard
 // Design: Refined Luxury meets Sacred Geometry - Gold, Deep Emerald, Warm Neutrals
@@ -14,6 +28,9 @@ const GIFRDonorConcierge = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const chatEndRef = useRef(null);
   const [conversationHistory, setConversationHistory] = useState([]);
+  const [darkMode, setDarkMode] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const dashboardRef = useRef(null);
 
   // Donor Data (from our schema)
   const donorData = {
@@ -51,7 +68,72 @@ const GIFRDonorConcierge = () => {
         progress: 75,
         lastUpdate: "22 Dec 2025"
       }
+    ],
+    // Add coordinates for map
+    projectLocations: [
+      { id: "EDU-COX", name: "Hadianto Learning Center", lat: 21.1833, lng: 92.1500, location: "Cox's Bazar, Bangladesh" },
+      { id: "LIV-TUR", name: "Syrian Women's Tailoring", lat: 37.0662, lng: 37.3833, location: "Gaziantep, Türkiye" }
     ]
+  };
+
+  // Chart data
+  const portfolioChartData = donorData.portfolio.map(item => ({
+    name: item.name.split(' ')[0],
+    value: item.allocation,
+    fullName: item.name
+  }));
+
+  const yieldHistoryData = [
+    { month: 'Jul', yield: 580 },
+    { month: 'Aug', yield: 590 },
+    { month: 'Sep', yield: 575 },
+    { month: 'Oct', yield: 585 },
+    { month: 'Nov', yield: 600 },
+    { month: 'Dec', yield: 610 },
+    { month: 'Jan', yield: 595 }
+  ];
+
+  const beneficiaryData = [
+    { name: 'Education', direct: 12, indirect: 26 },
+    { name: 'Livelihood', direct: 8, indirect: 18 }
+  ];
+
+  const CHART_COLORS = ['#10b981', '#d4af37', '#6366f1', '#f59e0b'];
+
+  // PDF Export function
+  const exportToPDF = async () => {
+    if (!dashboardRef.current) return;
+    setIsExporting(true);
+
+    try {
+      const canvas = await html2canvas(dashboardRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: darkMode ? '#1c1917' : '#fafaf9'
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+
+      pdf.addImage(imgData, 'PNG', imgX, 10, imgWidth * ratio, imgHeight * ratio);
+      pdf.save(`GIFR-Impact-Report-${donorData.name.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`);
+    } catch (error) {
+      console.error('PDF export error:', error);
+    }
+
+    setIsExporting(false);
   };
 
   const initialMessages = [
@@ -691,37 +773,40 @@ What would you like to know? 🤲`);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-amber-50/30 to-emerald-50/20" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-stone-900' : 'bg-gradient-to-br from-stone-50 via-amber-50/30 to-emerald-50/20'}`} style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
       {/* Add Google Fonts */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
-        
+
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        
+
         @keyframes slideIn {
           from { opacity: 0; transform: translateX(-20px); }
           to { opacity: 1; transform: translateX(0); }
         }
-        
+
         @keyframes pulse-gold {
           0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
           50% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
         }
-        
+
         .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
         .animate-slideIn { animation: slideIn 0.5s ease-out; }
         .animate-pulse-gold { animation: pulse-gold 2s infinite; }
-        
+
         .scrollbar-thin::-webkit-scrollbar { width: 4px; }
         .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
         .scrollbar-thin::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 4px; }
+
+        .dark-card { background: linear-gradient(135deg, rgba(41,37,36,0.95) 0%, rgba(28,25,23,0.9) 100%); }
+        .light-card { background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(250,248,245,0.9) 100%); }
       `}</style>
 
       {/* Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-amber-100">
+      <header className={`sticky top-0 z-50 backdrop-blur-xl border-b transition-colors duration-300 ${darkMode ? 'bg-stone-900/80 border-stone-700' : 'bg-white/80 border-amber-100'}`}>
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -733,20 +818,39 @@ What would you like to know? 🤲`);
                 </div>
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-stone-800" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                <h1 className={`text-xl font-semibold ${darkMode ? 'text-stone-100' : 'text-stone-800'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                   GIFR Donor Concierge
                 </h1>
-                <p className="text-xs text-stone-500">Global Islamic Fund for Refugees</p>
+                <p className={`text-xs ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>Global Islamic Fund for Refugees</p>
               </div>
             </div>
-            
+
             {/* Donor Info */}
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4">
+              {/* PDF Export Button */}
+              <button
+                onClick={exportToPDF}
+                disabled={isExporting}
+                className={`p-2 rounded-full transition-colors ${darkMode ? 'bg-stone-700 text-stone-300 hover:bg-stone-600' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'} ${isExporting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                title="Export PDF"
+              >
+                <span className="text-xl">{isExporting ? '⏳' : '📄'}</span>
+              </button>
+
+              {/* Dark Mode Toggle */}
+              <button
+                onClick={() => setDarkMode(!darkMode)}
+                className={`p-2 rounded-full transition-colors ${darkMode ? 'bg-amber-500 text-stone-900 hover:bg-amber-400' : 'bg-stone-800 text-amber-400 hover:bg-stone-700'}`}
+                title={darkMode ? 'Light Mode' : 'Dark Mode'}
+              >
+                <span className="text-xl">{darkMode ? '☀️' : '🌙'}</span>
+              </button>
+
               {showNotification && (
                 <div className="relative animate-pulse-gold">
-                  <button 
+                  <button
                     onClick={() => setActiveTab('chat')}
-                    className="p-2 rounded-full bg-amber-100 text-amber-600 hover:bg-amber-200 transition-colors"
+                    className={`p-2 rounded-full transition-colors ${darkMode ? 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30' : 'bg-amber-100 text-amber-600 hover:bg-amber-200'}`}
                   >
                     <span className="text-xl">💬</span>
                   </button>
@@ -755,14 +859,14 @@ What would you like to know? 🤲`);
                   </span>
                 </div>
               )}
-              
-              <div className="flex items-center gap-3 pl-6 border-l border-stone-200">
+
+              <div className={`flex items-center gap-3 pl-4 border-l ${darkMode ? 'border-stone-600' : 'border-stone-200'}`}>
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-stone-600 to-stone-700 flex items-center justify-center text-white font-medium">
                   SH
                 </div>
                 <div className="text-right">
-                  <p className="font-medium text-stone-800 text-sm">{donorData.name}</p>
-                  <p className="text-xs text-emerald-600">Waqif since 2024</p>
+                  <p className={`font-medium text-sm ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>{donorData.name}</p>
+                  <p className="text-xs text-emerald-500">Waqif since 2024</p>
                 </div>
               </div>
             </div>
@@ -928,52 +1032,97 @@ What would you like to know? 🤲`);
         {/* Portfolio Tab */}
         {activeTab === 'portfolio' && (
           <div className="space-y-8 animate-fadeIn">
-            <div className="rounded-3xl bg-white border border-stone-200 overflow-hidden shadow-sm">
-              <div className="p-6 border-b border-stone-100">
-                <h3 className="text-xl font-semibold text-stone-800" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+            {/* Charts Section */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Pie Chart - Portfolio Allocation */}
+              <div className={`rounded-3xl p-6 border shadow-sm ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'}`}>
+                <h3 className={`text-lg font-semibold mb-4 ${darkMode ? 'text-stone-100' : 'text-stone-800'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                  Portfolio Allocation
+                </h3>
+                <ResponsiveContainer width="100%" height={250}>
+                  <PieChart>
+                    <Pie
+                      data={portfolioChartData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={5}
+                      dataKey="value"
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    >
+                      {portfolioChartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Line Chart - Yield History */}
+              <div className={`rounded-3xl p-6 border shadow-sm ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'}`}>
+                <h3 className={`text-lg font-semibold mb-4 ${darkMode ? 'text-stone-100' : 'text-stone-800'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                  Monthly Yield (6 months)
+                </h3>
+                <ResponsiveContainer width="100%" height={250}>
+                  <LineChart data={yieldHistoryData}>
+                    <XAxis dataKey="month" stroke={darkMode ? '#a8a29e' : '#78716c'} />
+                    <YAxis stroke={darkMode ? '#a8a29e' : '#78716c'} />
+                    <Tooltip formatter={(value) => `$${value}`} />
+                    <Line type="monotone" dataKey="yield" stroke="#10b981" strokeWidth={3} dot={{ fill: '#10b981', strokeWidth: 2 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Portfolio List */}
+            <div className={`rounded-3xl overflow-hidden border shadow-sm ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'}`}>
+              <div className={`p-6 border-b ${darkMode ? 'border-stone-700' : 'border-stone-100'}`}>
+                <h3 className={`text-xl font-semibold ${darkMode ? 'text-stone-100' : 'text-stone-800'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                   Sukuk Portfolio Allocation
                 </h3>
-                <p className="text-sm text-stone-500 mt-1">All instruments are AAOIFI Sharia-compliant</p>
+                <p className={`text-sm mt-1 ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>All instruments are AAOIFI Sharia-compliant</p>
               </div>
-              
-              <div className="divide-y divide-stone-100">
+
+              <div className={`divide-y ${darkMode ? 'divide-stone-700' : 'divide-stone-100'}`}>
                 {donorData.portfolio.map((asset, i) => (
-                  <div key={i} className="p-6 flex items-center justify-between hover:bg-stone-50 transition-colors">
+                  <div key={i} className={`p-6 flex items-center justify-between transition-colors ${darkMode ? 'hover:bg-stone-700' : 'hover:bg-stone-50'}`}>
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-200 flex items-center justify-center">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${darkMode ? 'bg-emerald-900/50' : 'bg-gradient-to-br from-emerald-100 to-emerald-200'}`}>
                         <span className="text-xl">📜</span>
                       </div>
                       <div>
-                        <h4 className="font-medium text-stone-800">{asset.name}</h4>
-                        <p className="text-sm text-stone-500">{asset.type} Structure</p>
+                        <h4 className={`font-medium ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>{asset.name}</h4>
+                        <p className={`text-sm ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>{asset.type} Structure</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-semibold text-stone-800">${asset.allocation.toLocaleString()}</p>
-                      <p className="text-sm text-emerald-600">Yield: {asset.yield}% p.a.</p>
+                      <p className={`text-lg font-semibold ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>${asset.allocation.toLocaleString()}</p>
+                      <p className="text-sm text-emerald-500">Yield: {asset.yield}% p.a.</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${darkMode ? 'bg-emerald-900/50 text-emerald-400' : 'bg-emerald-100 text-emerald-700'}`}>
                         ✓ Sharia Certified
                       </span>
                     </div>
                   </div>
                 ))}
               </div>
-              
-              <div className="p-6 bg-stone-50 border-t border-stone-100">
-                <div className="flex items-center justify-between">
+
+              <div className={`p-6 border-t ${darkMode ? 'bg-stone-900/50 border-stone-700' : 'bg-stone-50 border-stone-100'}`}>
+                <div className="flex items-center justify-between flex-wrap gap-4">
                   <div>
-                    <p className="text-sm text-stone-500">External Auditor</p>
-                    <p className="font-medium text-stone-800">KPMG Islamic Finance</p>
+                    <p className={`text-sm ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>External Auditor</p>
+                    <p className={`font-medium ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>KPMG Islamic Finance</p>
                   </div>
                   <div>
-                    <p className="text-sm text-stone-500">Audit Opinion</p>
-                    <p className="font-medium text-emerald-600">Unqualified (Clean) ✓</p>
+                    <p className={`text-sm ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>Audit Opinion</p>
+                    <p className="font-medium text-emerald-500">Unqualified (Clean) ✓</p>
                   </div>
                   <div>
-                    <p className="text-sm text-stone-500">Report ID</p>
-                    <p className="font-medium text-stone-800">KPMG-GIFR-2025-Q4-FINAL</p>
+                    <p className={`text-sm ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>Report ID</p>
+                    <p className={`font-medium ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>KPMG-GIFR-2025-Q4-FINAL</p>
                   </div>
                   <button className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors">
                     Download Audit PDF
@@ -983,33 +1132,33 @@ What would you like to know? 🤲`);
             </div>
 
             {/* Fee Transparency */}
-            <div className="rounded-3xl bg-white border border-stone-200 p-6 shadow-sm">
-              <h3 className="text-xl font-semibold text-stone-800 mb-6" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+            <div className={`rounded-3xl p-6 border shadow-sm ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'}`}>
+              <h3 className={`text-xl font-semibold mb-6 ${darkMode ? 'text-stone-100' : 'text-stone-800'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                 Fee Transparency Report
               </h3>
-              
+
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-xl bg-stone-50">
-                  <span className="text-stone-600">Gross Yield (2025)</span>
-                  <span className="font-semibold text-stone-800">$7,350.00</span>
+                <div className={`flex items-center justify-between p-4 rounded-xl ${darkMode ? 'bg-stone-700' : 'bg-stone-50'}`}>
+                  <span className={darkMode ? 'text-stone-300' : 'text-stone-600'}>Gross Yield (2025)</span>
+                  <span className={`font-semibold ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>$7,350.00</span>
                 </div>
-                <div className="flex items-center justify-between p-4 rounded-xl bg-red-50">
-                  <span className="text-stone-600">Management Fee (5%)</span>
-                  <span className="font-semibold text-red-600">- $367.50</span>
+                <div className={`flex items-center justify-between p-4 rounded-xl ${darkMode ? 'bg-red-900/30' : 'bg-red-50'}`}>
+                  <span className={darkMode ? 'text-stone-300' : 'text-stone-600'}>Management Fee (5%)</span>
+                  <span className="font-semibold text-red-500">- $367.50</span>
                 </div>
-                <div className="flex items-center justify-between p-4 rounded-xl bg-red-50">
-                  <span className="text-stone-600">Sharia Audit Fee (1%)</span>
-                  <span className="font-semibold text-red-600">- $73.50</span>
+                <div className={`flex items-center justify-between p-4 rounded-xl ${darkMode ? 'bg-red-900/30' : 'bg-red-50'}`}>
+                  <span className={darkMode ? 'text-stone-300' : 'text-stone-600'}>Sharia Audit Fee (1%)</span>
+                  <span className="font-semibold text-red-500">- $73.50</span>
                 </div>
-                <div className="h-px bg-stone-200"/>
-                <div className="flex items-center justify-between p-4 rounded-xl bg-emerald-50">
-                  <span className="font-medium text-stone-800">Net Distributable to Impact</span>
-                  <span className="text-xl font-bold text-emerald-600">$6,909.00</span>
+                <div className={`h-px ${darkMode ? 'bg-stone-600' : 'bg-stone-200'}`}/>
+                <div className={`flex items-center justify-between p-4 rounded-xl ${darkMode ? 'bg-emerald-900/30' : 'bg-emerald-50'}`}>
+                  <span className={`font-medium ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>Net Distributable to Impact</span>
+                  <span className="text-xl font-bold text-emerald-500">$6,909.00</span>
                 </div>
                 <div className="flex items-center justify-center p-4">
-                  <div className="px-4 py-2 bg-gradient-to-r from-emerald-100 to-amber-100 rounded-full">
-                    <span className="text-sm font-medium text-stone-700">
-                      Yield-to-Impact Conversion Rate: <span className="text-emerald-700 font-bold">94%</span>
+                  <div className={`px-4 py-2 rounded-full ${darkMode ? 'bg-gradient-to-r from-emerald-900/50 to-amber-900/50' : 'bg-gradient-to-r from-emerald-100 to-amber-100'}`}>
+                    <span className={`text-sm font-medium ${darkMode ? 'text-stone-200' : 'text-stone-700'}`}>
+                      Yield-to-Impact Conversion Rate: <span className="text-emerald-500 font-bold">94%</span>
                     </span>
                   </div>
                 </div>
@@ -1021,72 +1170,103 @@ What would you like to know? 🤲`);
         {/* Impact Tab */}
         {activeTab === 'impact' && (
           <div className="space-y-8 animate-fadeIn">
-            {/* Impact Map Placeholder */}
-            <div className="rounded-3xl overflow-hidden border border-stone-200 bg-white shadow-sm">
-              <div className="h-64 bg-gradient-to-br from-emerald-100 via-blue-50 to-amber-100 flex items-center justify-center relative">
-                <div className="absolute inset-0 opacity-20">
-                  <IslamicPattern />
-                </div>
-                <div className="text-center z-10">
-                  <div className="text-6xl mb-4">🗺️</div>
-                  <p className="text-stone-600 font-medium">Interactive Impact Map</p>
-                  <p className="text-sm text-stone-500 mt-1">Cox's Bazar • Gaziantep</p>
-                </div>
-                
-                {/* Location Markers */}
-                <div className="absolute top-1/3 left-1/3 animate-pulse">
-                  <div className="w-4 h-4 bg-emerald-500 rounded-full shadow-lg"/>
-                </div>
-                <div className="absolute top-1/2 right-1/3 animate-pulse" style={{ animationDelay: '0.5s' }}>
-                  <div className="w-4 h-4 bg-amber-500 rounded-full shadow-lg"/>
-                </div>
+            {/* Interactive Map */}
+            <div className={`rounded-3xl overflow-hidden border shadow-sm ${darkMode ? 'border-stone-700' : 'border-stone-200'}`}>
+              <div className={`p-4 ${darkMode ? 'bg-stone-800' : 'bg-white'}`}>
+                <h3 className={`text-lg font-semibold ${darkMode ? 'text-stone-100' : 'text-stone-800'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                  🗺️ Impact Locations
+                </h3>
+                <p className={`text-sm ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>Click markers to see project details</p>
               </div>
+              <div className="h-80">
+                <MapContainer
+                  center={[30, 60]}
+                  zoom={3}
+                  style={{ height: '100%', width: '100%' }}
+                  scrollWheelZoom={true}
+                >
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  {donorData.projectLocations.map((loc) => (
+                    <Marker key={loc.id} position={[loc.lat, loc.lng]}>
+                      <Popup>
+                        <div className="p-2">
+                          <h4 className="font-semibold text-stone-800">{loc.name}</h4>
+                          <p className="text-sm text-stone-600">{loc.location}</p>
+                          <p className="text-xs text-emerald-600 mt-1">
+                            {donorData.projects.find(p => p.id === loc.id)?.beneficiaries} beneficiaries
+                          </p>
+                        </div>
+                      </Popup>
+                    </Marker>
+                  ))}
+                </MapContainer>
+              </div>
+            </div>
+
+            {/* Beneficiary Chart */}
+            <div className={`rounded-3xl p-6 border shadow-sm ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'}`}>
+              <h3 className={`text-lg font-semibold mb-4 ${darkMode ? 'text-stone-100' : 'text-stone-800'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                Beneficiary Impact by Sector
+              </h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={beneficiaryData}>
+                  <XAxis dataKey="name" stroke={darkMode ? '#a8a29e' : '#78716c'} />
+                  <YAxis stroke={darkMode ? '#a8a29e' : '#78716c'} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="direct" name="Direct" fill="#10b981" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="indirect" name="Indirect" fill="#d4af37" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
 
             {/* Beneficiary Stories */}
             <div>
-              <h3 className="text-xl font-semibold text-stone-800 mb-6" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              <h3 className={`text-xl font-semibold mb-6 ${darkMode ? 'text-stone-100' : 'text-stone-800'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                 Stories from the Field
               </h3>
-              
+
               <div className="grid md:grid-cols-2 gap-6">
                 {/* Story Card 1 */}
-                <div className="rounded-2xl overflow-hidden bg-white border border-stone-200 shadow-sm hover:shadow-lg transition-shadow">
-                  <div className="h-48 bg-gradient-to-br from-amber-100 to-emerald-100 flex items-center justify-center">
+                <div className={`rounded-2xl overflow-hidden border shadow-sm hover:shadow-lg transition-shadow ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'}`}>
+                  <div className={`h-48 flex items-center justify-center ${darkMode ? 'bg-gradient-to-br from-amber-900/30 to-emerald-900/30' : 'bg-gradient-to-br from-amber-100 to-emerald-100'}`}>
                     <span className="text-8xl">👧🏽</span>
                   </div>
                   <div className="p-6">
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full">Education</span>
-                      <span className="text-xs text-stone-400">Cox's Bazar</span>
+                      <span className={`px-2 py-1 text-xs rounded-full ${darkMode ? 'bg-emerald-900/50 text-emerald-400' : 'bg-emerald-100 text-emerald-700'}`}>Education</span>
+                      <span className={`text-xs ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>Cox's Bazar</span>
                     </div>
-                    <h4 className="font-semibold text-stone-800">Fatima's Journey</h4>
-                    <p className="text-sm text-stone-600 mt-2 leading-relaxed">
+                    <h4 className={`font-semibold ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>Fatima's Journey</h4>
+                    <p className={`text-sm mt-2 leading-relaxed ${darkMode ? 'text-stone-300' : 'text-stone-600'}`}>
                       "For the first time since fleeing Myanmar, my daughter dreams of becoming a teacher."
                     </p>
-                    <p className="text-xs text-stone-400 mt-3">— Rahima, mother of Fatima</p>
-                    <button className="mt-4 text-sm text-emerald-600 font-medium hover:underline">
+                    <p className={`text-xs mt-3 ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>— Rahima, mother of Fatima</p>
+                    <button className="mt-4 text-sm text-emerald-500 font-medium hover:underline">
                       Read full story →
                     </button>
                   </div>
                 </div>
 
                 {/* Story Card 2 */}
-                <div className="rounded-2xl overflow-hidden bg-white border border-stone-200 shadow-sm hover:shadow-lg transition-shadow">
-                  <div className="h-48 bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
+                <div className={`rounded-2xl overflow-hidden border shadow-sm hover:shadow-lg transition-shadow ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'}`}>
+                  <div className={`h-48 flex items-center justify-center ${darkMode ? 'bg-gradient-to-br from-purple-900/30 to-pink-900/30' : 'bg-gradient-to-br from-purple-100 to-pink-100'}`}>
                     <span className="text-8xl">👩🏻‍🦱</span>
                   </div>
                   <div className="p-6">
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">Livelihood</span>
-                      <span className="text-xs text-stone-400">Gaziantep</span>
+                      <span className={`px-2 py-1 text-xs rounded-full ${darkMode ? 'bg-purple-900/50 text-purple-400' : 'bg-purple-100 text-purple-700'}`}>Livelihood</span>
+                      <span className={`text-xs ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>Gaziantep</span>
                     </div>
-                    <h4 className="font-semibold text-stone-800">Mariam's Cooperative</h4>
-                    <p className="text-sm text-stone-600 mt-2 leading-relaxed">
+                    <h4 className={`font-semibold ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>Mariam's Cooperative</h4>
+                    <p className={`text-sm mt-2 leading-relaxed ${darkMode ? 'text-stone-300' : 'text-stone-600'}`}>
                       From refugee to entrepreneur. Mariam now employs 3 other Syrian women in her tailoring business.
                     </p>
-                    <p className="text-xs text-stone-400 mt-3">Income multiplier: 5.14x</p>
-                    <button className="mt-4 text-sm text-emerald-600 font-medium hover:underline">
+                    <p className={`text-xs mt-3 ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>Income multiplier: 5.14x</p>
+                    <button className="mt-4 text-sm text-emerald-500 font-medium hover:underline">
                       Read full story →
                     </button>
                   </div>
@@ -1095,7 +1275,7 @@ What would you like to know? 🤲`);
             </div>
 
             {/* SDG Alignment */}
-            <div className="rounded-3xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 p-6">
+            <div className={`rounded-3xl p-6 border ${darkMode ? 'bg-gradient-to-br from-blue-900/30 to-indigo-900/30 border-blue-800' : 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200'}`}>
               <h3 className="text-lg font-semibold text-stone-800 mb-4">UN SDG Alignment</h3>
               <div className="flex flex-wrap gap-3">
                 {['SDG 4: Quality Education', 'SDG 5: Gender Equality', 'SDG 8: Decent Work', 'SDG 10: Reduced Inequalities'].map((sdg, i) => (
