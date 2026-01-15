@@ -98,16 +98,41 @@ This is the perpetual dividend of your Waqf. 💚`,
     // Simulate AI response
     setTimeout(() => {
       setIsTyping(false);
-      let response = '';
-      
-      if (message.toLowerCase().includes('corruption') || message.toLowerCase().includes('admin') || message.toLowerCase().includes('fee')) {
-        response = {
-          id: chatMessages.length + 2,
-          sender: 'agent',
-          name: 'Aminah',
-          avatar: '🌙',
-          time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
-          content: `Thank you for this important question, Pak Sopian. Let me show you the complete fund flow:
+      const msg = message.toLowerCase();
+
+      const createResponse = (content, extras = {}) => ({
+        id: chatMessages.length + 2,
+        sender: 'agent',
+        name: 'Aminah',
+        avatar: '🌙',
+        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        content,
+        ...extras
+      });
+
+      let response;
+
+      // Greetings
+      if (msg.match(/^(hi|hello|halo|assalam|salam|hey)/)) {
+        response = createResponse(`Wa'alaikumussalam warahmatullahi wabarakatuh, Pak Sopian! 🌙
+
+Alhamdulillah, it's wonderful to hear from you. I'm Aminah, your GIFR Concierge.
+
+Your Waqf is performing beautifully — **$6,909** net impact deployed in 2025, touching **20 lives** directly.
+
+How may I assist you today?`);
+      }
+      // Thank you
+      else if (msg.match(/(thank|terima kasih|jazak|syukr)/)) {
+        response = createResponse(`Wa iyyakum, Pak Sopian. It is an honor to serve you. 🤲
+
+Your generosity is the seed; we are merely the gardeners. The true reward awaits with Allah SWT.
+
+Is there anything else I can help you with?`);
+      }
+      // Corruption/transparency/fee questions
+      else if (msg.match(/(corrupt|korupsi|transparan|transparency|fee|biaya|overhead|admin|where.*money|kemana.*uang)/)) {
+        response = createResponse(`Thank you for this important question, Pak Sopian. Transparency is our foundation.
 
 **Your Waqf: $125,000**
 ├─ Gross Yield 2025: $7,350
@@ -119,55 +144,242 @@ This is the perpetual dividend of your Waqf. 💚`,
 ✅ Report: KPMG-GIFR-2025-Q4-FINAL
 ✅ Opinion: Unqualified (Clean)
 
-Every dollar is traceable. Would you like the full audit report PDF?`,
-          hasAudit: true
-        };
-      } else if (message.toLowerCase().includes('10k') || message.toLowerCase().includes('add') || message.toLowerCase().includes('reinvest')) {
-        response = {
-          id: chatMessages.length + 2,
-          sender: 'agent',
-          name: 'Aminah',
-          avatar: '🌙',
-          time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
-          content: `Here's the exact math for a $10,000 addition:
+Every dollar is traceable on-chain. Would you like the full audit report PDF?`, { hasAudit: true });
+      }
+      // Audit report request
+      else if (msg.match(/(audit|report|laporan|kpmg|pdf|document)/)) {
+        response = createResponse(`Here is your audit documentation, Pak Sopian:
+
+📋 **Latest Audit Report**
+├─ Auditor: KPMG Islamic Finance
+├─ Report ID: KPMG-GIFR-2025-Q4-FINAL
+├─ Period: Q4 2025
+├─ Opinion: Unqualified (Clean) ✅
+└─ Sharia Compliance: Certified
+
+The report covers:
+• Fund flow verification
+• Sukuk portfolio compliance
+• Impact fund deployment
+• Beneficiary verification
+
+Click below to download the complete PDF.`, { hasAudit: true });
+      }
+      // Reinvestment/add funds
+      else if (msg.match(/(10k|10,000|tambah|add|reinvest|invest more|top.?up|\$\d+)/)) {
+        const amount = msg.match(/\$?([\d,]+)k?/);
+        const investAmount = amount ? parseInt(amount[1].replace(',', '')) * (msg.includes('k') ? 1000 : 1) : 10000;
+        const grossYield = investAmount * 0.058;
+        const netYield = grossYield * 0.94;
+
+        response = createResponse(`Here's the exact math for a $${investAmount.toLocaleString()} addition:
 
 **Projection @ 5.8% Yield:**
-├─ Annual Gross: $580
-├─ After 6% Overhead: $545.20
-└─ **Net Impact/Year: $545**
+├─ Annual Gross: $${grossYield.toFixed(0)}
+├─ After 6% Overhead: $${netYield.toFixed(2)}
+└─ **Net Impact/Year: $${netYield.toFixed(0)}**
 
 **What This Creates:**
-• 1 additional child educated fully
-• 1 partial livelihood package
+• ${Math.floor(netYield / 500)} additional child(ren) educated fully
+• ${Math.floor(netYield / 350)} partial livelihood packages
 
 **10-Year Perpetual Effect:**
-Year 1: 1-2 beneficiaries
-Year 5: 7-8 beneficiaries  
-Year 10: 15-16 beneficiaries
+Year 1: ${Math.floor(netYield / 400)}-${Math.ceil(netYield / 350)} beneficiaries
+Year 5: ${Math.floor(netYield / 100)}-${Math.ceil(netYield / 80)} beneficiaries
+Year 10: ${Math.floor(netYield / 50)}-${Math.ceil(netYield / 40)} beneficiaries
 
-This is sadaqah jariyah — a river that flows as long as the earth turns. 🌊`,
-          hasSimulation: true
-        };
-      } else {
-        response = {
-          id: chatMessages.length + 2,
-          sender: 'agent',
-          name: 'Aminah',
-          avatar: '🌙',
-          time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
-          content: `Thank you for your message, Pak Sopian. I'm here to help you explore the impact of your Waqf. 
-
-Would you like to:
-• See the latest field reports from your projects?
-• Review your portfolio performance?
-• Explore reinvestment scenarios?
-
-Barakallahu fiik. 🤲`
-        };
+This is sadaqah jariyah — a river that flows as long as the earth turns. 🌊`, { hasSimulation: true });
       }
-      
+      // Portfolio/Sukuk questions
+      else if (msg.match(/(portfolio|sukuk|invest|saham|yield|return|performa|perform)/)) {
+        response = createResponse(`Here's your portfolio overview, Pak Sopian:
+
+📊 **Sukuk Portfolio ($125,000)**
+
+**1. IDB Sovereign Sukuk** — $75,000
+├─ Structure: Ijarah
+├─ Yield: 5.2% p.a.
+└─ Status: ✅ AAOIFI Certified
+
+**2. GIFR Infrastructure Sukuk** — $50,000
+├─ Structure: Musharakah
+├─ Yield: 6.8% p.a.
+└─ Status: ✅ AAOIFI Certified
+
+**Combined Performance:**
+├─ Weighted Avg Yield: 5.84%
+├─ 2025 Gross Return: $7,350
+└─ Risk Rating: Low-Medium
+
+All instruments undergo quarterly Sharia review by KPMG.`);
+      }
+      // Fatima/specific beneficiary
+      else if (msg.match(/(fatima|fatimah|anak|child|student|murid|girl)/)) {
+        response = createResponse(`Let me share Fatima's latest update, Pak Sopian. 💚
+
+**Fatima Begum, Age 9**
+📍 Hadianto Learning Center, Cox's Bazar
+
+**Progress Report (Jan 2026):**
+├─ Reading Level: Grade 2 ✅ (was Grade 0)
+├─ Math Skills: Basic arithmetic mastered
+├─ Attendance: 94%
+└─ Health: Good (received nutrition support)
+
+Her mother Rahima said: *"For the first time since fleeing Myanmar, my daughter dreams of becoming a teacher."*
+
+Fatima is one of 12 children directly supported by your Waqf at this center. Would you like to see photos from her classroom?`, { hasMedia: true });
+      }
+      // Project updates/field reports
+      else if (msg.match(/(project|proyek|update|field|lapangan|progress|perkembangan|latest|terbaru)/)) {
+        response = createResponse(`Here are your latest project updates, Pak Sopian:
+
+🏫 **Hadianto Learning Center** (Cox's Bazar)
+├─ Status: OPERATIONAL ✅
+├─ Allocated: $4,145.40
+├─ Beneficiaries: 12 children
+├─ Progress: 100%
+└─ Last Update: 8 Jan 2026
+*"All 12 students now reading at grade level"*
+
+🧵 **Syrian Women's Tailoring Cooperative** (Gaziantep)
+├─ Status: SCALING 📈
+├─ Allocated: $2,763.60
+├─ Beneficiaries: 8 women
+├─ Progress: 75%
+└─ Last Update: 22 Dec 2025
+*"3 women now employed as trainers"*
+
+Would you like detailed reports from either project?`);
+      }
+      // Livelihood/tailoring/Syria
+      else if (msg.match(/(livelihood|tailor|jahit|syria|suriah|women|wanita|mariam|cooperative|koperasi)/)) {
+        response = createResponse(`Here's the latest from the Syrian Women's Tailoring Cooperative:
+
+🧵 **Project Details**
+├─ Location: Gaziantep, Türkiye
+├─ Your Allocation: $2,763.60
+├─ Beneficiaries: 8 Syrian refugee women
+└─ Status: SCALING 📈
+
+**Impact Highlights:**
+• Mariam (lead beneficiary) now employs 3 other women
+• Income multiplier: 5.14x
+• Average monthly income: $380/woman
+• Products sold to local markets
+
+**Sustainability Score:** 8.5/10
+The cooperative is on track to be self-sustaining by Q3 2026.
+
+This is the multiplier effect of your Waqf — one investment creating many livelihoods. 🌱`);
+      }
+      // Barakah score
+      else if (msg.match(/(barakah|score|skor|rating|nilai|impact.*score)/)) {
+        response = createResponse(`Your Barakah Score explained, Pak Sopian:
+
+✨ **Barakah Score: 9.2/10** (Exceptional)
+
+**Scoring Components:**
+├─ Impact Efficiency: 9.5/10
+│   └─ 94% of yield reaches beneficiaries
+├─ Beneficiary Reach: 9.0/10
+│   └─ 20 direct + 44 indirect lives
+├─ Sustainability: 9.0/10
+│   └─ Projects trending self-sufficient
+├─ Sharia Compliance: 10/10
+│   └─ Full AAOIFI certification
+└─ Transparency: 9.0/10
+    └─ Complete audit trail
+
+**Benchmark:** Average GIFR donor scores 7.8/10
+
+Your Waqf is in the top 5% of impact efficiency. MasyaAllah! 🌟`);
+      }
+      // SDG/UN goals
+      else if (msg.match(/(sdg|sustainable|un |united nation|goal|tujuan)/)) {
+        response = createResponse(`Your Waqf aligns with these UN Sustainable Development Goals:
+
+🎯 **SDG Alignment**
+
+**SDG 4: Quality Education** ✅
+└─ 12 refugee children in school
+
+**SDG 5: Gender Equality** ✅
+└─ 8 women economically empowered
+
+**SDG 8: Decent Work** ✅
+└─ Sustainable livelihood programs
+
+**SDG 10: Reduced Inequalities** ✅
+└─ Supporting displaced populations
+
+Your impact contributes to global humanitarian goals while fulfilling the Islamic principles of Waqf and sadaqah jariyah.`);
+      }
+      // Education/Cox's Bazar/Learning Center
+      else if (msg.match(/(education|pendidikan|school|sekolah|cox|bangladesh|learning center|hadianto)/)) {
+        response = createResponse(`Here's the Hadianto Learning Center update:
+
+🏫 **Hadianto Learning Center**
+├─ Location: Kutupalong Camp, Cox's Bazar
+├─ Your Allocation: $4,145.40
+├─ Beneficiaries: 12 Rohingya children
+└─ Status: OPERATIONAL ✅
+
+**Facilities:**
+• 2 classrooms (built with your Waqf)
+• 1 library corner
+• Learning materials for 20 students
+
+**Educational Outcomes:**
+├─ Literacy Rate: 100% (was 25%)
+├─ Numeracy Rate: 92%
+└─ Attendance: 94% average
+
+Named in honor of the Hadianto family's commitment to refugee education. The center will serve children perpetually through your Waqf endowment. 📚`);
+      }
+      // How does Waqf work
+      else if (msg.match(/(how.*work|bagaimana|cara kerja|what.*waqf|apa.*waqf|explain)/)) {
+        response = createResponse(`Let me explain how your Waqf works, Pak Sopian:
+
+📖 **The Waqf Model**
+
+**1. Your Endowment**
+└─ $125,000 principal (never spent)
+
+**2. Investment**
+└─ Placed in Sharia-compliant Sukuk
+
+**3. Yield Generation**
+└─ ~5.8% annual return = $7,350
+
+**4. Deployment**
+├─ 6% overhead (management + audit)
+└─ 94% to impact = $6,909
+
+**5. Perpetual Impact**
+└─ Repeats every year, forever
+
+Unlike regular charity, your principal remains intact. Only the yield is deployed — creating **sadaqah jariyah** (continuous charity) that benefits you in this life and the hereafter.
+
+*"When a person dies, their deeds end except for three: continuous charity, beneficial knowledge, or a righteous child who prays for them."* — Sahih Muslim`);
+      }
+      // Default response
+      else {
+        response = createResponse(`Thank you for your message, Pak Sopian. I'm here to help you explore your Waqf impact.
+
+I can assist you with:
+• 📊 **Portfolio** — "How is my sukuk performing?"
+• 🏫 **Projects** — "Show me project updates"
+• 💰 **Transparency** — "Where does my money go?"
+• 📈 **Simulation** — "What if I add $10,000?"
+• 👧 **Beneficiaries** — "Tell me about Fatima"
+• 📋 **Audit** — "Show me the audit report"
+• ✨ **Barakah** — "Explain my Barakah score"
+
+What would you like to know? 🤲`);
+      }
+
       setChatMessages(prev => [...prev, response]);
-    }, 2000);
   };
 
   // Geometric Islamic Pattern SVG
