@@ -865,7 +865,7 @@ What would you like to know? 🤲`);
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main ref={dashboardRef} className="max-w-7xl mx-auto px-6 py-8">
         {/* Dashboard Tab */}
         {activeTab === 'dashboard' && (
           <div className="space-y-8 animate-fadeIn">
