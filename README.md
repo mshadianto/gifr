@@ -48,6 +48,10 @@ Open http://localhost:3000 in your browser.
 - KPMG Sharia audit trail
 - Transparent fee structure: 5% management + 1% audit = 6% total overhead
 
+## Author
+
+Built by **MS Hadianto** during the GIFR Second Partner Meeting in Jeddah, 12 January 2026.
+
 ## License
 
 Proprietary - Global Islamic Fund for Refugees
