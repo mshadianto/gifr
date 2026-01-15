@@ -3,6 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 // GIFR Donor Concierge - Islamic Philanthropy Dashboard
 // Design: Refined Luxury meets Sacred Geometry - Gold, Deep Emerald, Warm Neutrals
 
+const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
+
 const GIFRDonorConcierge = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [chatMessages, setChatMessages] = useState([]);
@@ -11,6 +13,7 @@ const GIFRDonorConcierge = () => {
   const [showNotification, setShowNotification] = useState(true);
   const [selectedProject, setSelectedProject] = useState(null);
   const chatEndRef = useRef(null);
+  const [conversationHistory, setConversationHistory] = useState([]);
 
   // Donor Data (from our schema)
   const donorData = {
@@ -80,7 +83,106 @@ This is the perpetual dividend of your Waqf. 💚`,
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
 
-  const handleSendMessage = (message) => {
+  // System prompt for Groq AI
+  const getSystemPrompt = () => `You are Aminah, the AI Concierge for GIFR (Global Islamic Fund for Refugees). You assist donors with information about their Waqf investments and impact.
+
+IMPORTANT RULES:
+- Always respond in the same language as the user's message (Indonesian or English)
+- Be warm, professional, and use Islamic greetings when appropriate
+- Use markdown formatting for structure (bold, lists, etc.)
+- Never invent data - only use the donor data provided below
+- Keep responses concise but informative
+- End responses with a helpful follow-up question or offer
+
+DONOR DATA:
+- Name: ${donorData.name}
+- Waqf Principal: $${donorData.waqfPrincipal.toLocaleString()} (perpetual endowment, never spent)
+- Net Yield 2025: $${donorData.netYield2025.toLocaleString()}
+- Yield-to-Impact Rate: ${donorData.yieldToImpact}% (94% reaches beneficiaries)
+- Total Direct Beneficiaries: ${donorData.totalBeneficiaries}
+- Indirect Beneficiaries: ${donorData.indirectBeneficiaries}
+- Barakah Score: ${donorData.barakahScore}/10 (Exceptional - top 5%)
+
+PORTFOLIO:
+1. IDB Sovereign Sukuk - $75,000 (Ijarah structure, 5.2% yield, AAOIFI certified)
+2. GIFR Infrastructure Sukuk - $50,000 (Musharakah structure, 6.8% yield, AAOIFI certified)
+- Combined weighted yield: 5.84%
+- Auditor: KPMG Islamic Finance
+- Audit Report: KPMG-GIFR-2025-Q4-FINAL (Unqualified/Clean opinion)
+
+FEE STRUCTURE:
+- Gross Yield: $7,350
+- Management Fee (5%): $367.50
+- Sharia Audit Fee (1%): $73.50
+- Net to Impact: $6,909 (94%)
+
+PROJECTS:
+1. Hadianto Learning Center (Cox's Bazar, Bangladesh)
+   - Status: OPERATIONAL
+   - Allocated: $4,145.40
+   - Beneficiaries: 12 Rohingya children
+   - Progress: 100%
+   - Key beneficiary: Fatima Begum, age 9, now reads at Grade 2 level
+   - Mother's quote: "For the first time since fleeing Myanmar, my daughter dreams of becoming a teacher."
+
+2. Syrian Women's Tailoring Cooperative (Gaziantep, Türkiye)
+   - Status: SCALING
+   - Allocated: $2,763.60
+   - Beneficiaries: 8 Syrian refugee women
+   - Progress: 75%
+   - Lead: Mariam, now employs 3 other women
+   - Income multiplier: 5.14x
+
+SDG ALIGNMENT: SDG 4 (Education), SDG 5 (Gender Equality), SDG 8 (Decent Work), SDG 10 (Reduced Inequalities)
+
+For investment simulations, use 5.8% yield and 94% net-to-impact rate.`;
+
+  // Call Groq API
+  const callGroqAPI = async (userMessage) => {
+    if (!GROQ_API_KEY) {
+      return null; // Fall back to keyword responses
+    }
+
+    const newHistory = [...conversationHistory, { role: 'user', content: userMessage }];
+
+    try {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${GROQ_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          messages: [
+            { role: 'system', content: getSystemPrompt() },
+            ...newHistory
+          ],
+          temperature: 0.7,
+          max_tokens: 1024,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error('Groq API error:', response.status);
+        return null;
+      }
+
+      const data = await response.json();
+      const assistantMessage = data.choices[0]?.message?.content;
+
+      if (assistantMessage) {
+        setConversationHistory([...newHistory, { role: 'assistant', content: assistantMessage }]);
+        return assistantMessage;
+      }
+      return null;
+    } catch (error) {
+      console.error('Groq API error:', error);
+      return null;
+    }
+  };
+
+  const handleSendMessage = async (message) => {
     if (!message.trim()) return;
 
     const newMessage = {
@@ -95,7 +197,24 @@ This is the perpetual dividend of your Waqf. 💚`,
     setInputValue('');
     setIsTyping(true);
 
-    // Simulate AI response
+    // Try Groq API first
+    const groqResponse = await callGroqAPI(message);
+
+    if (groqResponse) {
+      setIsTyping(false);
+      const response = {
+        id: chatMessages.length + 2,
+        sender: 'agent',
+        name: 'Aminah',
+        avatar: '🌙',
+        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        content: groqResponse
+      };
+      setChatMessages(prev => [...prev, response]);
+      return;
+    }
+
+    // Fallback to keyword-based responses if Groq fails
     setTimeout(() => {
       setIsTyping(false);
       const msg = message.toLowerCase();
