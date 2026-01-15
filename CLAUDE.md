@@ -4,26 +4,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-GIFR Donor Concierge is a single-file React dashboard component for the Global Islamic Fund for Refugees. It provides donor transparency, Islamic finance compliance documentation, and an AI concierge interface.
+GIFR Donor Concierge is a React dashboard for the Global Islamic Fund for Refugees. It provides donor transparency, Islamic finance compliance documentation, and an AI concierge interface.
 
-## Build & Development
+## Commands
 
-This is a standalone React component with no build configuration. To use:
+```bash
+npm install      # Install dependencies
+npm run dev      # Start dev server at http://localhost:3000
+npm run build    # Build for production
+npm run preview  # Preview production build
+```
 
-1. Copy `gifr-donor-concierge.jsx` into a React project with Tailwind CSS
-2. Import: `import GIFRDonorConcierge from './gifr-donor-concierge'`
-3. Render: `<GIFRDonorConcierge />`
+## Project Structure
 
-**Dependencies:**
-- React 17+ (uses hooks: useState, useEffect, useRef)
-- Tailwind CSS
-- Google Fonts (Cormorant Garamond, Inter) - loaded via inline @import
+```
+gifr/
+├── src/
+│   ├── main.jsx              # Entry point
+│   ├── index.css             # Tailwind CSS
+│   └── GIFRDonorConcierge.jsx # Main component (~900 lines)
+├── index.html
+├── vite.config.js
+├── tailwind.config.js
+└── package.json
+```
 
 ## Architecture
-
-### Single-File Structure
-
-The entire application is in `gifr-donor-concierge.jsx` (~900 lines). This is intentional for portability.
 
 ### Component Hierarchy
 
@@ -44,7 +50,7 @@ Local React state only (no Redux/Context). Key state:
 
 ### Data Structure
 
-`donorData` object (lines 16-52) contains all mock data:
+`donorData` object (src/GIFRDonorConcierge.jsx:16-52) contains all mock data:
 - Donor profile
 - Sukuk portfolio allocation (2 instruments)
 - Impact projects (education, livelihood)

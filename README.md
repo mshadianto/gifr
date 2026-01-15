@@ -1,6 +1,6 @@
 # GIFR Donor Concierge
 
-A React dashboard component for the Global Islamic Fund for Refugees (GIFR) that provides donors with transparency into their Waqf investments and impact.
+A React dashboard for the Global Islamic Fund for Refugees (GIFR) that provides donors with transparency into their Waqf investments and impact.
 
 ## Features
 
@@ -9,29 +9,31 @@ A React dashboard component for the Global Islamic Fund for Refugees (GIFR) that
 - **Impact Tracking** - Monitor funded projects with real-time progress and field updates
 - **AI Concierge (Aminah)** - Chat interface for donor inquiries about impact, audits, and reinvestment
 
-## Installation
+## Quick Start
 
-1. Copy `gifr-donor-concierge.jsx` into your React project
-2. Ensure Tailwind CSS is configured
-3. Import and use:
-
-```jsx
-import GIFRDonorConcierge from './gifr-donor-concierge';
-
-function App() {
-  return <GIFRDonorConcierge />;
-}
+```bash
+npm install
+npm run dev
 ```
 
-## Requirements
+Open http://localhost:3000 in your browser.
 
-- React 17+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server on port 3000 |
+| `npm run build` | Build for production |
+| `npm run preview` | Preview production build |
+
+## Tech Stack
+
+- React 18
+- Vite
 - Tailwind CSS
-- Google Fonts (Cormorant Garamond, Inter) - automatically loaded via CSS import
+- Google Fonts (Cormorant Garamond, Inter)
 
-## Screenshots
-
-The dashboard includes four main views:
+## Dashboard Views
 
 | Tab | Description |
 |-----|-------------|
