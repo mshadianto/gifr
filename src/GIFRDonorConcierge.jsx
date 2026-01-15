@@ -6,6 +6,12 @@ import jsPDF from 'jspdf';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
+// Modular imports
+import { ImpactSimulator, StoryDetail } from './components/modals';
+import { donorData as defaultDonorData, beneficiaryStories, yieldHistoryData, beneficiaryChartData, sdgList } from './data/donorData';
+import { CHART_COLORS, TABS, MAP_CENTER, MAP_ZOOM } from './constants';
+import { useDarkMode } from './hooks/useDarkMode';
+
 // Fix Leaflet marker icons
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -28,77 +34,32 @@ const GIFRDonorConcierge = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const chatEndRef = useRef(null);
   const [conversationHistory, setConversationHistory] = useState([]);
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode, toggleDarkMode } = useDarkMode();
   const [isExporting, setIsExporting] = useState(false);
   const dashboardRef = useRef(null);
 
-  // Donor Data (from our schema)
-  const donorData = {
-    name: "Pak Sopian Hadianto",
-    waqfPrincipal: 125000,
-    netYield2025: 6909,
-    yieldToImpact: 94,
-    totalBeneficiaries: 20,
-    indirectBeneficiaries: 44,
-    barakahScore: 9.2,
-    portfolio: [
-      { name: "IDB Sovereign Sukuk", allocation: 75000, yield: 5.2, type: "Ijarah" },
-      { name: "GIFR Infrastructure Sukuk", allocation: 50000, yield: 6.8, type: "Musharakah" }
-    ],
-    projects: [
-      {
-        id: "EDU-COX",
-        name: "Hadianto Learning Center",
-        location: "Cox's Bazar, Bangladesh",
-        status: "OPERATIONAL",
-        allocated: 4145.40,
-        beneficiaries: 12,
-        image: "🏫",
-        progress: 100,
-        lastUpdate: "8 Jan 2026"
-      },
-      {
-        id: "LIV-TUR",
-        name: "Syrian Women's Tailoring Cooperative",
-        location: "Gaziantep, Türkiye",
-        status: "SCALING",
-        allocated: 2763.60,
-        beneficiaries: 8,
-        image: "🧵",
-        progress: 75,
-        lastUpdate: "22 Dec 2025"
-      }
-    ],
-    // Add coordinates for map
-    projectLocations: [
-      { id: "EDU-COX", name: "Hadianto Learning Center", lat: 21.1833, lng: 92.1500, location: "Cox's Bazar, Bangladesh" },
-      { id: "LIV-TUR", name: "Syrian Women's Tailoring", lat: 37.0662, lng: 37.3833, location: "Gaziantep, Türkiye" }
-    ]
-  };
+  // Modal states
+  const [showImpactSimulator, setShowImpactSimulator] = useState(false);
+  const [selectedStory, setSelectedStory] = useState(null);
 
-  // Chart data
+  // Use imported data
+  const donorData = defaultDonorData;
+
+  // Chart data derived from donor data
   const portfolioChartData = donorData.portfolio.map(item => ({
     name: item.name.split(' ')[0],
     value: item.allocation,
     fullName: item.name
   }));
 
-  const yieldHistoryData = [
-    { month: 'Jul', yield: 580 },
-    { month: 'Aug', yield: 590 },
-    { month: 'Sep', yield: 575 },
-    { month: 'Oct', yield: 585 },
-    { month: 'Nov', yield: 600 },
-    { month: 'Dec', yield: 610 },
-    { month: 'Jan', yield: 595 }
-  ];
-
-  const beneficiaryData = [
-    { name: 'Education', direct: 12, indirect: 26 },
-    { name: 'Livelihood', direct: 8, indirect: 18 }
-  ];
-
-  const CHART_COLORS = ['#10b981', '#d4af37', '#6366f1', '#f59e0b'];
+  // Get project locations from projects
+  const projectLocations = donorData.projects.map(p => ({
+    id: p.id,
+    name: p.name,
+    lat: p.lat,
+    lng: p.lng,
+    location: p.location
+  }));
 
   // PDF Export function
   const exportToPDF = async () => {
@@ -839,7 +800,7 @@ What would you like to know? 🤲`);
 
               {/* Dark Mode Toggle */}
               <button
-                onClick={() => setDarkMode(!darkMode)}
+                onClick={toggleDarkMode}
                 className={`p-2 rounded-full transition-colors ${darkMode ? 'bg-amber-500 text-stone-900 hover:bg-amber-400' : 'bg-stone-800 text-amber-400 hover:bg-stone-700'}`}
                 title={darkMode ? 'Light Mode' : 'Dark Mode'}
               >
@@ -1015,11 +976,8 @@ What would you like to know? 🤲`);
                     Ask Aminah for a detailed impact simulation.
                   </p>
                 </div>
-                <button 
-                  onClick={() => {
-                    setActiveTab('chat');
-                    handleSendMessage("If I add $10k, what exactly happens?");
-                  }}
+                <button
+                  onClick={() => setShowImpactSimulator(true)}
                   className="px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl font-medium hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg hover:shadow-xl"
                 >
                   Calculate Impact
@@ -1189,7 +1147,7 @@ What would you like to know? 🤲`);
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   />
-                  {donorData.projectLocations.map((loc) => (
+                  {projectLocations.map((loc) => (
                     <Marker key={loc.id} position={[loc.lat, loc.lng]}>
                       <Popup>
                         <div className="p-2">
@@ -1212,7 +1170,7 @@ What would you like to know? 🤲`);
                 Beneficiary Impact by Sector
               </h3>
               <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={beneficiaryData}>
+                <BarChart data={beneficiaryChartData}>
                   <XAxis dataKey="name" stroke={darkMode ? '#a8a29e' : '#78716c'} />
                   <YAxis stroke={darkMode ? '#a8a29e' : '#78716c'} />
                   <Tooltip />
@@ -1230,57 +1188,44 @@ What would you like to know? 🤲`);
               </h3>
 
               <div className="grid md:grid-cols-2 gap-6">
-                {/* Story Card 1 */}
-                <div className={`rounded-2xl overflow-hidden border shadow-sm hover:shadow-lg transition-shadow ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'}`}>
-                  <div className={`h-48 flex items-center justify-center ${darkMode ? 'bg-gradient-to-br from-amber-900/30 to-emerald-900/30' : 'bg-gradient-to-br from-amber-100 to-emerald-100'}`}>
-                    <span className="text-8xl">👧🏽</span>
-                  </div>
-                  <div className="p-6">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className={`px-2 py-1 text-xs rounded-full ${darkMode ? 'bg-emerald-900/50 text-emerald-400' : 'bg-emerald-100 text-emerald-700'}`}>Education</span>
-                      <span className={`text-xs ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>Cox's Bazar</span>
+                {beneficiaryStories.map((story) => (
+                  <div
+                    key={story.id}
+                    className={`rounded-2xl overflow-hidden border shadow-sm hover:shadow-lg transition-all cursor-pointer ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'}`}
+                    onClick={() => setSelectedStory(story)}
+                  >
+                    <div className={`h-48 flex items-center justify-center bg-gradient-to-br ${darkMode ? story.gradientDark : story.gradientLight}`}>
+                      <span className="text-8xl">{story.emoji}</span>
                     </div>
-                    <h4 className={`font-semibold ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>Fatima's Journey</h4>
-                    <p className={`text-sm mt-2 leading-relaxed ${darkMode ? 'text-stone-300' : 'text-stone-600'}`}>
-                      "For the first time since fleeing Myanmar, my daughter dreams of becoming a teacher."
-                    </p>
-                    <p className={`text-xs mt-3 ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>— Rahima, mother of Fatima</p>
-                    <button className="mt-4 text-sm text-emerald-500 font-medium hover:underline">
-                      Read full story →
-                    </button>
-                  </div>
-                </div>
-
-                {/* Story Card 2 */}
-                <div className={`rounded-2xl overflow-hidden border shadow-sm hover:shadow-lg transition-shadow ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'}`}>
-                  <div className={`h-48 flex items-center justify-center ${darkMode ? 'bg-gradient-to-br from-purple-900/30 to-pink-900/30' : 'bg-gradient-to-br from-purple-100 to-pink-100'}`}>
-                    <span className="text-8xl">👩🏻‍🦱</span>
-                  </div>
-                  <div className="p-6">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className={`px-2 py-1 text-xs rounded-full ${darkMode ? 'bg-purple-900/50 text-purple-400' : 'bg-purple-100 text-purple-700'}`}>Livelihood</span>
-                      <span className={`text-xs ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>Gaziantep</span>
+                    <div className="p-6">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className={`px-2 py-1 text-xs rounded-full ${darkMode ? story.tagColorDark : story.tagColorLight}`}>{story.category}</span>
+                        <span className={`text-xs ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>{story.location}</span>
+                      </div>
+                      <h4 className={`font-semibold ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>{story.title}</h4>
+                      <p className={`text-sm mt-2 leading-relaxed ${darkMode ? 'text-stone-300' : 'text-stone-600'}`}>
+                        "{story.quote}"
+                      </p>
+                      <p className={`text-xs mt-3 ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>— {story.quoteAuthor}</p>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setSelectedStory(story); }}
+                        className="mt-4 text-sm text-emerald-500 font-medium hover:underline"
+                      >
+                        Read full story →
+                      </button>
                     </div>
-                    <h4 className={`font-semibold ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>Mariam's Cooperative</h4>
-                    <p className={`text-sm mt-2 leading-relaxed ${darkMode ? 'text-stone-300' : 'text-stone-600'}`}>
-                      From refugee to entrepreneur. Mariam now employs 3 other Syrian women in her tailoring business.
-                    </p>
-                    <p className={`text-xs mt-3 ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>Income multiplier: 5.14x</p>
-                    <button className="mt-4 text-sm text-emerald-500 font-medium hover:underline">
-                      Read full story →
-                    </button>
                   </div>
-                </div>
+                ))}
               </div>
             </div>
 
             {/* SDG Alignment */}
             <div className={`rounded-3xl p-6 border ${darkMode ? 'bg-gradient-to-br from-blue-900/30 to-indigo-900/30 border-blue-800' : 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200'}`}>
-              <h3 className="text-lg font-semibold text-stone-800 mb-4">UN SDG Alignment</h3>
+              <h3 className={`text-lg font-semibold mb-4 ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>UN SDG Alignment</h3>
               <div className="flex flex-wrap gap-3">
-                {['SDG 4: Quality Education', 'SDG 5: Gender Equality', 'SDG 8: Decent Work', 'SDG 10: Reduced Inequalities'].map((sdg, i) => (
-                  <span key={i} className="px-4 py-2 bg-white rounded-full text-sm font-medium text-stone-700 shadow-sm">
-                    {sdg}
+                {sdgList.map((sdg, i) => (
+                  <span key={i} className={`px-4 py-2 rounded-full text-sm font-medium shadow-sm ${darkMode ? 'bg-stone-700 text-stone-200' : 'bg-white text-stone-700'}`}>
+                    {sdg.icon} {sdg.name}
                   </span>
                 ))}
               </div>
@@ -1386,6 +1331,20 @@ What would you like to know? 🤲`);
           </div>
         </div>
       </footer>
+
+      {/* Modals */}
+      <ImpactSimulator
+        isOpen={showImpactSimulator}
+        onClose={() => setShowImpactSimulator(false)}
+        darkMode={darkMode}
+        currentPrincipal={donorData.waqfPrincipal}
+      />
+      <StoryDetail
+        isOpen={!!selectedStory}
+        onClose={() => setSelectedStory(null)}
+        story={selectedStory}
+        darkMode={darkMode}
+      />
     </div>
   );
 };
