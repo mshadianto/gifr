@@ -104,7 +104,7 @@ const GIFRDonorConcierge = () => {
       name: 'Aminah',
       avatar: '🌙',
       time: '08:30',
-      content: `Assalamu'alaikum Pak Sopian,
+      content: `Assalamu'alaikum Pak MS,
 
 I hope this message finds you in the best of health and iman. I have news that will bring warmth to your heart.
 
@@ -231,7 +231,7 @@ For investment simulations, use 5.8% yield and 94% net-to-impact rate.`;
     const newMessage = {
       id: chatMessages.length + 1,
       sender: 'user',
-      name: 'Pak Sopian',
+      name: 'Pak MS',
       time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
       content: message
     };
@@ -276,7 +276,7 @@ For investment simulations, use 5.8% yield and 94% net-to-impact rate.`;
 
       // Greetings
       if (msg.match(/^(hi|hello|halo|assalam|salam|hey)/)) {
-        response = createResponse(`Wa'alaikumussalam warahmatullahi wabarakatuh, Pak Sopian! 🌙
+        response = createResponse(`Wa'alaikumussalam warahmatullahi wabarakatuh, Pak MS! 🌙
 
 Alhamdulillah, it's wonderful to hear from you. I'm Aminah, your GIFR Concierge.
 
@@ -286,7 +286,7 @@ How may I assist you today?`);
       }
       // Thank you
       else if (msg.match(/(thank|terima kasih|jazak|syukr)/)) {
-        response = createResponse(`Wa iyyakum, Pak Sopian. It is an honor to serve you. 🤲
+        response = createResponse(`Wa iyyakum, Pak MS. It is an honor to serve you. 🤲
 
 Your generosity is the seed; we are merely the gardeners. The true reward awaits with Allah SWT.
 
@@ -294,7 +294,7 @@ Is there anything else I can help you with?`);
       }
       // Corruption/transparency/fee questions
       else if (msg.match(/(corrupt|korupsi|transparan|transparency|fee|biaya|overhead|admin|where.*money|kemana.*uang)/)) {
-        response = createResponse(`Thank you for this important question, Pak Sopian. Transparency is our foundation.
+        response = createResponse(`Thank you for this important question, Pak MS. Transparency is our foundation.
 
 **Your Waqf: $125,000**
 ├─ Gross Yield 2025: $7,350
@@ -310,7 +310,7 @@ Every dollar is traceable on-chain. Would you like the full audit report PDF?`, 
       }
       // Audit report request
       else if (msg.match(/(audit|report|laporan|kpmg|pdf|document)/)) {
-        response = createResponse(`Here is your audit documentation, Pak Sopian:
+        response = createResponse(`Here is your audit documentation, Pak MS:
 
 📋 **Latest Audit Report**
 ├─ Auditor: KPMG Islamic Finance
@@ -354,7 +354,7 @@ This is sadaqah jariyah — a river that flows as long as the earth turns. 🌊`
       }
       // Portfolio/Sukuk questions
       else if (msg.match(/(portfolio|sukuk|invest|saham|yield|return|performa|perform)/)) {
-        response = createResponse(`Here's your portfolio overview, Pak Sopian:
+        response = createResponse(`Here's your portfolio overview, Pak MS:
 
 📊 **Sukuk Portfolio ($125,000)**
 
@@ -377,7 +377,7 @@ All instruments undergo quarterly Sharia review by KPMG.`);
       }
       // Fatima/specific beneficiary
       else if (msg.match(/(fatima|fatimah|anak|child|student|murid|girl)/)) {
-        response = createResponse(`Let me share Fatima's latest update, Pak Sopian. 💚
+        response = createResponse(`Let me share Fatima's latest update, Pak MS. 💚
 
 **Fatima Begum, Age 9**
 📍 Hadianto Learning Center, Cox's Bazar
@@ -394,7 +394,7 @@ Fatima is one of 12 children directly supported by your Waqf at this center. Wou
       }
       // Project updates/field reports
       else if (msg.match(/(project|proyek|update|field|lapangan|progress|perkembangan|latest|terbaru)/)) {
-        response = createResponse(`Here are your latest project updates, Pak Sopian:
+        response = createResponse(`Here are your latest project updates, Pak MS:
 
 🏫 **Hadianto Learning Center** (Cox's Bazar)
 ├─ Status: OPERATIONAL ✅
@@ -437,7 +437,7 @@ This is the multiplier effect of your Waqf — one investment creating many live
       }
       // Barakah score
       else if (msg.match(/(barakah|score|skor|rating|nilai|impact.*score)/)) {
-        response = createResponse(`Your Barakah Score explained, Pak Sopian:
+        response = createResponse(`Your Barakah Score explained, Pak MS:
 
 ✨ **Barakah Score: 9.2/10** (Exceptional)
 
@@ -501,7 +501,7 @@ Named in honor of the Hadianto family's commitment to refugee education. The cen
       }
       // How does Waqf work
       else if (msg.match(/(how.*work|bagaimana|cara kerja|what.*waqf|apa.*waqf|explain)/)) {
-        response = createResponse(`Let me explain how your Waqf works, Pak Sopian:
+        response = createResponse(`Let me explain how your Waqf works, Pak MS:
 
 📖 **The Waqf Model**
 
@@ -527,7 +527,7 @@ Unlike regular charity, your principal remains intact. Only the yield is deploye
       }
       // Default response
       else {
-        response = createResponse(`Thank you for your message, Pak Sopian. I'm here to help you explore your Waqf impact.
+        response = createResponse(`Thank you for your message, Pak MS. I'm here to help you explore your Waqf impact.
 
 I can assist you with:
 • 📊 **Portfolio** — "How is my sukuk performing?"
@@ -823,7 +823,7 @@ What would you like to know? 🤲`);
 
               <div className={`flex items-center gap-3 pl-4 border-l ${darkMode ? 'border-stone-600' : 'border-stone-200'}`}>
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-stone-600 to-stone-700 flex items-center justify-center text-white font-medium">
-                  SH
+                  MH
                 </div>
                 <div className="text-right">
                   <p className={`font-medium text-sm ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>{donorData.name}</p>

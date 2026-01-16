@@ -1,5 +1,5 @@
 export const donorData = {
-  name: "Pak Sopian Hadianto",
+  name: "Pak MS Hadianto",
   waqfPrincipal: 125000,
   netYield2025: 6909,
   yieldToImpact: 94,

@@ -11,7 +11,13 @@
       "Bash(npm run dev:*)",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd complete Vite + React + Tailwind setup\n\n- Add package.json with React 18, Vite, Tailwind dependencies\n- Add Vite and Tailwind configuration files\n- Add index.html entry point with Google Fonts\n- Create src/ folder structure with main.jsx and CSS\n- Update README.md and CLAUDE.md with build commands\n\nRun with: npm install && npm run dev\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(git commit:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(npx vercel:*)",
+      "Bash(vercel --prod:*)",
+      "Bash(vercel alias:*)",
+      "WebFetch(domain:gifr-donor-concierge.vercel.app)",
+      "Bash(npm run build:*)",
+      "Bash(vercel env add:*)"
     ]
   }
 }
