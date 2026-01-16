@@ -3,9 +3,22 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, 
 import { calculateImpact, formatCurrency } from '../../utils/impactCalculator';
 import { CHART_COLORS } from '../../constants';
 
-const ImpactSimulator = ({ isOpen, onClose, darkMode, currentPrincipal = 0 }) => {
+const ImpactSimulator = ({ isOpen, onClose, darkMode, currentPrincipal = 0, onProceed }) => {
   const [amount, setAmount] = useState(10000);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const handleProceed = () => {
+    setShowSuccess(true);
+    if (onProceed) {
+      onProceed(amount);
+    }
+    // Auto close after 3 seconds
+    setTimeout(() => {
+      setShowSuccess(false);
+      onClose();
+    }, 3000);
+  };
 
   const impact = useMemo(() => calculateImpact(amount), [amount]);
 
@@ -164,24 +177,36 @@ const ImpactSimulator = ({ isOpen, onClose, darkMode, currentPrincipal = 0 }) =>
             <p className={`text-sm mt-2 ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>— Sahih Muslim</p>
           </div>
 
+          {/* Success Message */}
+          {showSuccess && (
+            <div className="p-6 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-center animate-pulse">
+              <p className="text-2xl mb-2">✅ Alhamdulillah!</p>
+              <p className="text-lg">Your investment request of {formatCurrency(amount)} has been submitted.</p>
+              <p className="text-sm mt-2 opacity-80">Our team will contact you within 24 hours to complete the process.</p>
+            </div>
+          )}
+
           {/* CTA */}
-          <div className="flex gap-4">
-            <button
-              onClick={onClose}
-              className={`flex-1 py-4 rounded-xl font-medium transition-colors ${
-                darkMode
-                  ? 'bg-stone-700 text-stone-300 hover:bg-stone-600'
-                  : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-              }`}
-            >
-              Close
-            </button>
-            <button
-              className="flex-1 py-4 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl font-medium hover:from-emerald-700 hover:to-emerald-800 transition-all shadow-lg"
-            >
-              Proceed with {formatCurrency(amount)} 🌱
-            </button>
-          </div>
+          {!showSuccess && (
+            <div className="flex gap-4">
+              <button
+                onClick={onClose}
+                className={`flex-1 py-4 rounded-xl font-medium transition-colors ${
+                  darkMode
+                    ? 'bg-stone-700 text-stone-300 hover:bg-stone-600'
+                    : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                }`}
+              >
+                Close
+              </button>
+              <button
+                onClick={handleProceed}
+                className="flex-1 py-4 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl font-medium hover:from-emerald-700 hover:to-emerald-800 transition-all shadow-lg hover:scale-[1.02]"
+              >
+                Proceed with {formatCurrency(amount)} 🌱
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
