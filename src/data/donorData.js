@@ -3,10 +3,11 @@ export const donorData = {
   waqfPrincipal: 125000,
   netYield2025: 6909,
   yieldToImpact: 94,
-  totalBeneficiaries: 20,
-  indirectBeneficiaries: 44,
+  totalBeneficiaries: 89,
+  indirectBeneficiaries: 196,
   barakahScore: 9.2,
   waqifSince: 2024,
+  projectCountries: ["Bangladesh", "Turkey", "Indonesia"],
   portfolio: [
     { name: "IDB Sovereign Sukuk", allocation: 75000, yield: 5.2, type: "Ijarah" },
     { name: "GIFR Infrastructure Sukuk", allocation: 50000, yield: 6.8, type: "Musharakah" }
@@ -16,6 +17,7 @@ export const donorData = {
       id: "EDU-COX",
       name: "Hadianto Learning Center",
       location: "Cox's Bazar, Bangladesh",
+      country: "Bangladesh",
       status: "OPERATIONAL",
       allocated: 4145.40,
       beneficiaries: 12,
@@ -30,6 +32,7 @@ export const donorData = {
       id: "LIV-TUR",
       name: "Syrian Women's Tailoring Cooperative",
       location: "Gaziantep, Türkiye",
+      country: "Turkey",
       status: "SCALING",
       allocated: 2763.60,
       beneficiaries: 8,
@@ -39,6 +42,57 @@ export const donorData = {
       category: "Livelihood",
       lat: 37.0662,
       lng: 37.3833
+    },
+    {
+      id: "EDU-IDN-1",
+      name: "Pesantren Al-Hadianto Digital",
+      location: "Tasikmalaya, Jawa Barat",
+      country: "Indonesia",
+      status: "OPERATIONAL",
+      allocated: 1800.00,
+      beneficiaries: 45,
+      image: "🕌",
+      progress: 85,
+      lastUpdate: "15 Feb 2026",
+      category: "Education",
+      lat: -7.3274,
+      lng: 108.2207,
+      currency: "IDR",
+      allocatedLocal: 28800000
+    },
+    {
+      id: "LIV-IDN-2",
+      name: "Koperasi UMKM Syariah Perempuan",
+      location: "Padang, Sumatera Barat",
+      country: "Indonesia",
+      status: "SCALING",
+      allocated: 1200.00,
+      beneficiaries: 24,
+      image: "🧕",
+      progress: 60,
+      lastUpdate: "1 Feb 2026",
+      category: "Livelihood",
+      lat: -0.9471,
+      lng: 100.4172,
+      currency: "IDR",
+      allocatedLocal: 19200000
+    },
+    {
+      id: "WQF-IDN-3",
+      name: "Masjid Produktif Al-Falah",
+      location: "Yogyakarta, DI Yogyakarta",
+      country: "Indonesia",
+      status: "PLANNING",
+      allocated: 900.00,
+      beneficiaries: 0,
+      image: "🏗️",
+      progress: 25,
+      lastUpdate: "10 Feb 2026",
+      category: "Waqf Produktif",
+      lat: -7.7956,
+      lng: 110.3695,
+      currency: "IDR",
+      allocatedLocal: 14400000
     }
   ]
 };
@@ -51,6 +105,7 @@ export const beneficiaryStories = [
     projectId: "EDU-COX",
     category: "Education",
     location: "Cox's Bazar",
+    country: "Bangladesh",
     emoji: "👧🏽",
     gradientLight: "from-amber-100 to-emerald-100",
     gradientDark: "from-amber-900/30 to-emerald-900/30",
@@ -88,6 +143,7 @@ Fatima now reads stories to younger children at the camp. Her favorite subject i
     projectId: "LIV-TUR",
     category: "Livelihood",
     location: "Gaziantep",
+    country: "Turkey",
     emoji: "👩🏻‍🦱",
     gradientLight: "from-purple-100 to-pink-100",
     gradientDark: "from-purple-900/30 to-pink-900/30",
@@ -123,6 +179,85 @@ Within 6 months, Mariam's business grew beyond her expectations:
       incomeMultiplier: "5.14x",
       yourContribution: 230.30
     }
+  },
+  {
+    id: "aisyah",
+    name: "Aisyah Nurjanah",
+    age: 16,
+    projectId: "EDU-IDN-1",
+    category: "Education",
+    location: "Tasikmalaya",
+    country: "Indonesia",
+    emoji: "👩🏽‍🎓",
+    gradientLight: "from-blue-100 to-emerald-100",
+    gradientDark: "from-blue-900/30 to-emerald-900/30",
+    tagColorLight: "bg-blue-100 text-blue-700",
+    tagColorDark: "bg-blue-900/50 text-blue-400",
+    title: "Perjalanan Digital Aisyah",
+    quote: "Sekarang saya bisa belajar coding dan mengajar teman-teman di pesantren.",
+    quoteAuthor: "Aisyah, santri di Pesantren Al-Hadianto",
+    fullStory: `Aisyah Nurjanah adalah santri kelas XI di Pesantren Al-Hadianto, Tasikmalaya. Sebelum program digitalisasi pesantren dimulai, akses teknologi di pesantren sangat terbatas.
+
+Melalui program Waqf Digital Pesantren yang didanai dari hasil investasi Bapak Hadianto, pesantren kini memiliki laboratorium komputer dengan 20 unit dan koneksi internet.
+
+**Laporan Perkembangan (Februari 2026):**
+- Kemampuan Coding: Python dasar & web design
+- Nilai Akademis: Naik 30% sejak program dimulai
+- Mengajar: Melatih 10 santri lain dalam literasi digital
+- Rencana: Ingin membuat aplikasi untuk pesantren se-Indonesia
+
+Aisyah kini menjadi mentor digital bagi santri-santri lain. Ia mengajarkan dasar-dasar pemrograman dan desain web setiap hari Sabtu di laboratorium komputer pesantren.
+
+*"Dulu saya pikir santri hanya belajar kitab kuning. Sekarang kami buktikan santri juga bisa menguasai teknologi."* — Aisyah
+
+**Dampak Waqf Anda:** Kontribusi Waqf Bapak sebesar $40 (Rp 640.000) per tahun untuk pendidikan Aisyah. Investasi ini akan terus mengalir selamanya melalui mekanisme Waqf.`,
+    stats: {
+      digitalSkills: "Advanced",
+      studentsTrainedByHer: 10,
+      academicImprovement: "30%",
+      yourContribution: 40
+    }
+  },
+  {
+    id: "ibu-sri",
+    name: "Ibu Sri Wahyuni",
+    age: 38,
+    projectId: "LIV-IDN-2",
+    category: "Livelihood",
+    location: "Padang",
+    country: "Indonesia",
+    emoji: "👩🏽‍🍳",
+    gradientLight: "from-orange-100 to-yellow-100",
+    gradientDark: "from-orange-900/30 to-yellow-900/30",
+    tagColorLight: "bg-orange-100 text-orange-700",
+    tagColorDark: "bg-orange-900/50 text-orange-400",
+    title: "Koperasi Rendang Ibu Sri",
+    quote: "Dari modal Rp 5 juta, sekarang omzet koperasi kami Rp 25 juta per bulan.",
+    quoteAuthor: "Pengali pendapatan: 5x",
+    fullStory: `Ibu Sri Wahyuni adalah seorang janda dengan 3 anak di Padang, Sumatera Barat. Sebelum bergabung dengan Koperasi UMKM Syariah, beliau menjual rendang dengan modal seadanya.
+
+Melalui program pembiayaan syariah tanpa riba dari GIFR, Ibu Sri menerima modal usaha Rp 5.000.000 dengan akad Qardh Hasan.
+
+**Perkembangan (Februari 2026):**
+- Bulan 1-2: Memperbesar produksi rendang, omzet Rp 8 juta/bulan
+- Bulan 3-4: Merekrut 3 ibu rumah tangga sebagai karyawan
+- Bulan 5-6: Mulai menerima pesanan catering, omzet Rp 25 juta/bulan
+
+**Status Saat Ini:**
+- Karyawan: 6 ibu rumah tangga
+- Omzet Bulanan: Rp 25.000.000
+- Pengali Pendapatan: 5x dari modal awal
+- Produk: Rendang, gulai, dan catering syariah
+
+*"Alhamdulillah, sekarang saya bisa menyekolahkan ketiga anak saya. Dan 6 ibu lainnya juga punya penghasilan tetap."* — Ibu Sri
+
+**Dampak Waqf Anda:** Kontribusi Waqf Bapak sebesar $25 (Rp 400.000) untuk modal usaha Ibu Sri. Satu investasi telah menciptakan 7 mata pencaharian berkelanjutan.`,
+    stats: {
+      employees: 6,
+      monthlyRevenue: "Rp 25 juta",
+      incomeMultiplier: "5x",
+      yourContribution: 25
+    }
   }
 ];
 
@@ -137,13 +272,37 @@ export const yieldHistoryData = [
 ];
 
 export const beneficiaryChartData = [
-  { name: 'Education', direct: 12, indirect: 26 },
-  { name: 'Livelihood', direct: 8, indirect: 18 }
+  { name: 'Education', direct: 57, indirect: 126 },
+  { name: 'Livelihood', direct: 32, indirect: 70 },
+  { name: 'Waqf Produktif', direct: 0, indirect: 0 }
 ];
 
 export const sdgList = [
+  { icon: '🏠', name: 'SDG 1: No Poverty' },
   { icon: '📚', name: 'SDG 4: Quality Education' },
   { icon: '⚖️', name: 'SDG 5: Gender Equality' },
   { icon: '💼', name: 'SDG 8: Decent Work' },
-  { icon: '🤝', name: 'SDG 10: Reduced Inequalities' }
+  { icon: '🤝', name: 'SDG 10: Reduced Inequalities' },
+  { icon: '🏘️', name: 'SDG 11: Sustainable Communities' }
 ];
+
+export const complianceData = {
+  international: {
+    label: "International Standards",
+    standards: [
+      { name: "AAOIFI Sharia Standards", status: "Certified", icon: "✅" },
+      { name: "KPMG Islamic Finance Audit", status: "Unqualified (Clean)", icon: "✅" },
+      { name: "ISO 27001 Data Security", status: "Compliant", icon: "✅" }
+    ]
+  },
+  indonesia: {
+    label: "Indonesia Compliance (BWI/OJK)",
+    standards: [
+      { name: "UU No. 41/2004 tentang Wakaf", status: "Compliant", icon: "✅" },
+      { name: "Badan Wakaf Indonesia (BWI)", status: "Registered Nazhir", icon: "✅" },
+      { name: "OJK Sharia Financial Regulation", status: "Licensed", icon: "✅" },
+      { name: "LKS-PWU", status: "Partnered", icon: "✅" },
+      { name: "Nazhir Registration", status: "Active", icon: "✅" }
+    ]
+  }
+};

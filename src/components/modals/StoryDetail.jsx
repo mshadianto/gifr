@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatCurrency } from '../../utils/impactCalculator';
+import { IDR_USD_RATE } from '../../constants';
 
 const StoryDetail = ({ isOpen, onClose, story, darkMode }) => {
   if (!isOpen || !story) return null;
@@ -111,7 +112,9 @@ const StoryDetail = ({ isOpen, onClose, story, darkMode }) => {
                 </p>
                 <p className={`text-lg font-semibold ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>
                   {typeof value === 'number' && key.includes('Contribution')
-                    ? formatCurrency(value)
+                    ? (story.country === 'Indonesia'
+                      ? `${formatCurrency(value)} (${formatCurrency(value * IDR_USD_RATE, 'IDR')})`
+                      : formatCurrency(value))
                     : value}
                 </p>
               </div>
@@ -126,7 +129,7 @@ const StoryDetail = ({ isOpen, onClose, story, darkMode }) => {
           {/* Impact Badge */}
           <div className={`mt-6 p-4 rounded-xl text-center ${darkMode ? 'bg-emerald-900/30' : 'bg-emerald-50'}`}>
             <p className={`text-sm ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`}>
-              ✨ Your Waqf contributed <strong>{formatCurrency(story.stats?.yourContribution || 0)}</strong> to {story.name.split(' ')[0]}'s journey
+              ✨ Your Waqf contributed <strong>{formatCurrency(story.stats?.yourContribution || 0)}{story.country === 'Indonesia' && ` (${formatCurrency((story.stats?.yourContribution || 0) * IDR_USD_RATE, 'IDR')})`}</strong> to {story.name.split(' ')[0]}'s journey
             </p>
           </div>
 

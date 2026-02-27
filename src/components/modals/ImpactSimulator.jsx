@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 import { calculateImpact, formatCurrency } from '../../utils/impactCalculator';
-import { CHART_COLORS } from '../../constants';
+import { CHART_COLORS, IDR_USD_RATE } from '../../constants';
 
 const ImpactSimulator = ({ isOpen, onClose, darkMode, currentPrincipal = 0, onProceed }) => {
   const [amount, setAmount] = useState(10000);
@@ -82,6 +82,10 @@ const ImpactSimulator = ({ isOpen, onClose, darkMode, currentPrincipal = 0, onPr
               />
             </div>
 
+            <p className={`text-sm mt-1 ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>
+              Approx. {formatCurrency(amount * IDR_USD_RATE, 'IDR')}
+            </p>
+
             {/* Preset Buttons */}
             <div className="flex flex-wrap gap-2 mt-3">
               {presetAmounts.map(preset => (
@@ -103,7 +107,7 @@ const ImpactSimulator = ({ isOpen, onClose, darkMode, currentPrincipal = 0, onPr
           </div>
 
           {/* Results Summary */}
-          <div className={`grid md:grid-cols-3 gap-4 p-6 rounded-2xl ${darkMode ? 'bg-stone-700' : 'bg-gradient-to-br from-emerald-50 to-amber-50'}`}>
+          <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 p-6 rounded-2xl ${darkMode ? 'bg-stone-700' : 'bg-gradient-to-br from-emerald-50 to-amber-50'}`}>
             <div className="text-center">
               <p className={`text-sm ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>Annual Net Yield</p>
               <p className="text-3xl font-bold text-emerald-600" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
@@ -122,6 +126,13 @@ const ImpactSimulator = ({ isOpen, onClose, darkMode, currentPrincipal = 0, onPr
               <p className={`text-sm ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>Livelihood Packages</p>
               <p className="text-3xl font-bold text-purple-600" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                 {impact.livelihoodPackages}
+              </p>
+              <p className={`text-xs ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>per year, perpetually</p>
+            </div>
+            <div className="text-center">
+              <p className={`text-sm ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>Santri Digital</p>
+              <p className="text-3xl font-bold text-blue-600" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                {impact.pesantrenStudents}
               </p>
               <p className={`text-xs ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>per year, perpetually</p>
             </div>

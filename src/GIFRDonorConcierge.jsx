@@ -8,9 +8,10 @@ import L from 'leaflet';
 
 // Modular imports
 import { ImpactSimulator, StoryDetail } from './components/modals';
-import { donorData as defaultDonorData, beneficiaryStories, yieldHistoryData, beneficiaryChartData, sdgList } from './data/donorData';
-import { CHART_COLORS, TABS, MAP_CENTER, MAP_ZOOM } from './constants';
+import { donorData as defaultDonorData, beneficiaryStories, yieldHistoryData, beneficiaryChartData, sdgList, complianceData } from './data/donorData';
+import { CHART_COLORS, TABS, MAP_CENTER, MAP_ZOOM, COUNTRIES, IDR_USD_RATE } from './constants';
 import { useDarkMode } from './hooks/useDarkMode';
+import { formatCurrency, formatProjectCurrency } from './utils/impactCalculator';
 
 // Fix Leaflet marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -41,9 +42,18 @@ const GIFRDonorConcierge = () => {
   // Modal states
   const [showImpactSimulator, setShowImpactSimulator] = useState(false);
   const [selectedStory, setSelectedStory] = useState(null);
+  const [countryFilter, setCountryFilter] = useState('all');
 
   // Use imported data
   const donorData = defaultDonorData;
+
+  // Filtered data by country
+  const filteredProjects = countryFilter === 'all'
+    ? donorData.projects
+    : donorData.projects.filter(p => p.country === countryFilter);
+  const filteredStories = countryFilter === 'all'
+    ? beneficiaryStories
+    : beneficiaryStories.filter(s => s.country === countryFilter);
 
   // Chart data derived from donor data
   const portfolioChartData = donorData.portfolio.map(item => ({
@@ -176,7 +186,42 @@ PROJECTS:
    - Lead: Mariam, now employs 3 other women
    - Income multiplier: 5.14x
 
-SDG ALIGNMENT: SDG 4 (Education), SDG 5 (Gender Equality), SDG 8 (Decent Work), SDG 10 (Reduced Inequalities)
+3. Pesantren Al-Hadianto Digital (Tasikmalaya, Jawa Barat, Indonesia)
+   - Status: OPERATIONAL
+   - Allocated: $1,800 (Rp 28.800.000)
+   - Beneficiaries: 45 santri
+   - Progress: 85%
+   - Key beneficiary: Aisyah Nurjanah, 16, now learning coding
+   - Program: Digital literacy for pesantren students
+
+4. Koperasi UMKM Syariah Perempuan (Padang, Sumatera Barat, Indonesia)
+   - Status: SCALING
+   - Allocated: $1,200 (Rp 19.200.000)
+   - Beneficiaries: 24 women entrepreneurs
+   - Progress: 60%
+   - Lead: Ibu Sri Wahyuni, rendang business with 6 employees
+   - Income multiplier: 5x
+
+5. Masjid Produktif Al-Falah (Yogyakarta, Indonesia)
+   - Status: PLANNING
+   - Allocated: $900 (Rp 14.400.000)
+   - Progress: 25%
+   - Program: Community economic hub using productive waqf (waqf produktif)
+
+INDONESIA COMPLIANCE:
+- Compliant with UU No. 41 Tahun 2004 tentang Wakaf
+- Registered Nazhir under Badan Wakaf Indonesia (BWI)
+- Partnered with LKS-PWU (Lembaga Keuangan Syariah Penerima Wakaf Uang)
+- Licensed under OJK (Otoritas Jasa Keuangan) Sharia regulations
+- AAOIFI international standards also apply
+
+SDG ALIGNMENT: SDG 1 (No Poverty), SDG 4 (Education), SDG 5 (Gender Equality), SDG 8 (Decent Work), SDG 10 (Reduced Inequalities), SDG 11 (Sustainable Communities)
+
+LANGUAGE RULES:
+- If the user writes in Indonesian (Bahasa Indonesia), respond in Indonesian
+- If the user writes in English, respond in English
+- Use Indonesian currency format (Rp) when discussing Indonesian projects
+- Use USD when discussing international/non-Indonesian projects
 
 For investment simulations, use 5.8% yield and 94% net-to-impact rate.`;
 
@@ -525,6 +570,52 @@ Unlike regular charity, your principal remains intact. Only the yield is deploye
 
 *"When a person dies, their deeds end except for three: continuous charity, beneficial knowledge, or a righteous child who prays for them."* — Sahih Muslim`);
       }
+      // Indonesia projects
+      else if (msg.match(/(indonesia|pesantren|umkm|masjid produktif|java|jawa|sumatra|sumatera|yogya|tasik|padang)/)) {
+        response = createResponse(`Here are your Indonesian project updates, Pak MS:
+
+🕌 **Pesantren Al-Hadianto Digital** (Tasikmalaya)
+├─ Status: OPERATIONAL ✅
+├─ Allocated: Rp 28.800.000
+├─ Beneficiaries: 45 santri
+├─ Progress: 85%
+└─ Highlights: Digital literacy program — Aisyah (16) now teaches coding to 10 peers
+
+🧕 **Koperasi UMKM Syariah Perempuan** (Padang)
+├─ Status: SCALING 📈
+├─ Allocated: Rp 19.200.000
+├─ Beneficiaries: 24 women entrepreneurs
+├─ Progress: 60%
+└─ Highlights: Ibu Sri's rendang cooperative employs 6 women, omzet Rp 25 juta/bulan
+
+🏗️ **Masjid Produktif Al-Falah** (Yogyakarta)
+├─ Status: PLANNING 📋
+├─ Allocated: Rp 14.400.000
+├─ Progress: 25%
+└─ Concept: Community economic hub through waqf produktif
+
+All projects comply with BWI regulations and UU 41/2004 tentang Wakaf. 🇮🇩
+
+Would you like to hear more about any specific project?`);
+      }
+      // Compliance / BWI / OJK
+      else if (msg.match(/(compliance|bwi|ojk|uu 41|uu.*wakaf|nazhir|lks-?pwu|regulasi|regulation)/)) {
+        response = createResponse(`Your Waqf compliance overview, Pak MS:
+
+🌍 **International Standards:**
+├─ AAOIFI Sharia Standards: ✅ Certified
+├─ KPMG Islamic Finance Audit: ✅ Clean Opinion
+└─ ISO 27001 Data Security: ✅ Compliant
+
+🇮🇩 **Indonesia Compliance:**
+├─ UU No. 41/2004 tentang Wakaf: ✅ Compliant
+├─ BWI (Badan Wakaf Indonesia): ✅ Registered Nazhir
+├─ OJK Sharia Regulation: ✅ Licensed
+├─ LKS-PWU: ✅ Partnered
+└─ Nazhir Registration: ✅ Active
+
+Your Waqf meets both international AAOIFI standards and Indonesian BWI/OJK requirements. Would you like to see the full audit report?`);
+      }
       // Default response
       else {
         response = createResponse(`Thank you for your message, Pak MS. I'm here to help you explore your Waqf impact.
@@ -532,10 +623,11 @@ Unlike regular charity, your principal remains intact. Only the yield is deploye
 I can assist you with:
 • 📊 **Portfolio** — "How is my sukuk performing?"
 • 🏫 **Projects** — "Show me project updates"
+• 🇮🇩 **Indonesia** — "Show me Indonesia projects"
 • 💰 **Transparency** — "Where does my money go?"
 • 📈 **Simulation** — "What if I add $10,000?"
 • 👧 **Beneficiaries** — "Tell me about Fatima"
-• 📋 **Audit** — "Show me the audit report"
+• 📋 **Compliance** — "Show BWI/OJK compliance"
 • ✨ **Barakah** — "Explain my Barakah score"
 
 What would you like to know? 🤲`);
@@ -603,17 +695,24 @@ What would you like to know? 🤲`);
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-stone-800">{project.name}</h3>
             <span className={`px-2 py-0.5 text-xs rounded-full ${
-              project.status === 'OPERATIONAL' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+              project.status === 'OPERATIONAL' ? 'bg-emerald-100 text-emerald-700'
+                : project.status === 'SCALING' ? 'bg-amber-100 text-amber-700'
+                : 'bg-blue-100 text-blue-700'
             }`}>
               {project.status}
             </span>
           </div>
-          <p className="text-sm text-stone-500 mt-1">📍 {project.location}</p>
-          
+          <p className="text-sm text-stone-500 mt-1">
+            📍 {project.location}
+            {project.country === 'Indonesia' && ' 🇮🇩'}
+            {project.country === 'Bangladesh' && ' 🇧🇩'}
+            {project.country === 'Turkey' && ' 🇹🇷'}
+          </p>
+
           <div className="mt-4 grid grid-cols-2 gap-4">
             <div>
               <p className="text-xs text-stone-400 uppercase tracking-wide">Allocated</p>
-              <p className="text-lg font-semibold text-stone-700">${project.allocated.toLocaleString()}</p>
+              <p className="text-lg font-semibold text-stone-700">{formatProjectCurrency(project)}</p>
             </div>
             <div>
               <p className="text-xs text-stone-400 uppercase tracking-wide">Beneficiaries</p>
@@ -714,6 +813,7 @@ What would you like to know? 🤲`);
     const actions = [
       "How do I know there's no corruption?",
       "If I add $10k, what happens?",
+      "Show me Indonesia projects",
       "Show me the audit report",
       "Latest field updates"
     ];
@@ -946,17 +1046,31 @@ What would you like to know? 🤲`);
                   <h3 className="text-xl font-semibold text-stone-800" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                     Your Impact Projects
                   </h3>
-                  <p className="text-sm text-stone-500 mt-1">Where your Waqf is making a difference</p>
+                  <p className="text-sm text-stone-500 mt-1">Where your Waqf is making a difference across {donorData.projectCountries.length} countries</p>
                 </div>
-                <button className="text-sm text-emerald-600 font-medium hover:underline">
-                  View all projects →
-                </button>
               </div>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                {donorData.projects.map(project => (
-                  <ProjectCard 
-                    key={project.id} 
+
+              {/* Country Filter */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                {COUNTRIES.map(c => (
+                  <button
+                    key={c.id}
+                    onClick={() => setCountryFilter(c.id)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      countryFilter === c.id
+                        ? 'bg-emerald-600 text-white'
+                        : darkMode ? 'bg-stone-700 text-stone-300 hover:bg-stone-600' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                    }`}
+                  >
+                    {c.icon} {c.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredProjects.map(project => (
+                  <ProjectCard
+                    key={project.id}
                     project={project}
                     onClick={setSelectedProject}
                   />
@@ -1040,7 +1154,7 @@ What would you like to know? 🤲`);
                 <h3 className={`text-xl font-semibold ${darkMode ? 'text-stone-100' : 'text-stone-800'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                   Sukuk Portfolio Allocation
                 </h3>
-                <p className={`text-sm mt-1 ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>All instruments are AAOIFI Sharia-compliant</p>
+                <p className={`text-sm mt-1 ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>AAOIFI Sharia-compliant | BWI/OJK Indonesia registered</p>
               </div>
 
               <div className={`divide-y ${darkMode ? 'divide-stone-700' : 'divide-stone-100'}`}>
@@ -1122,12 +1236,64 @@ What would you like to know? 🤲`);
                 </div>
               </div>
             </div>
+
+            {/* Compliance Standards */}
+            <div className={`rounded-3xl p-6 border shadow-sm ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'}`}>
+              <h3 className={`text-xl font-semibold mb-6 ${darkMode ? 'text-stone-100' : 'text-stone-800'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                Compliance Standards
+              </h3>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className={`text-sm font-semibold uppercase tracking-wide mb-3 ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>
+                    🌍 {complianceData.international.label}
+                  </h4>
+                  <div className="space-y-2">
+                    {complianceData.international.standards.map((s, i) => (
+                      <div key={i} className={`flex items-center justify-between p-3 rounded-xl ${darkMode ? 'bg-stone-700' : 'bg-stone-50'}`}>
+                        <span className={`text-sm ${darkMode ? 'text-stone-300' : 'text-stone-600'}`}>{s.name}</span>
+                        <span className="text-sm text-emerald-500 font-medium">{s.icon} {s.status}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h4 className={`text-sm font-semibold uppercase tracking-wide mb-3 ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>
+                    🇮🇩 {complianceData.indonesia.label}
+                  </h4>
+                  <div className="space-y-2">
+                    {complianceData.indonesia.standards.map((s, i) => (
+                      <div key={i} className={`flex items-center justify-between p-3 rounded-xl ${darkMode ? 'bg-stone-700' : 'bg-stone-50'}`}>
+                        <span className={`text-sm ${darkMode ? 'text-stone-300' : 'text-stone-600'}`}>{s.name}</span>
+                        <span className="text-sm text-emerald-500 font-medium">{s.icon} {s.status}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
         {/* Impact Tab */}
         {activeTab === 'impact' && (
           <div className="space-y-8 animate-fadeIn">
+            {/* Country Filter */}
+            <div className="flex flex-wrap gap-2">
+              {COUNTRIES.map(c => (
+                <button
+                  key={c.id}
+                  onClick={() => setCountryFilter(c.id)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    countryFilter === c.id
+                      ? 'bg-emerald-600 text-white'
+                      : darkMode ? 'bg-stone-700 text-stone-300 hover:bg-stone-600' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                  }`}
+                >
+                  {c.icon} {c.label}
+                </button>
+              ))}
+            </div>
+
             {/* Interactive Map */}
             <div className={`rounded-3xl overflow-hidden border shadow-sm ${darkMode ? 'border-stone-700' : 'border-stone-200'}`}>
               <div className={`p-4 ${darkMode ? 'bg-stone-800' : 'bg-white'}`}>
@@ -1138,8 +1304,8 @@ What would you like to know? 🤲`);
               </div>
               <div className="h-80">
                 <MapContainer
-                  center={[30, 60]}
-                  zoom={3}
+                  center={MAP_CENTER}
+                  zoom={MAP_ZOOM}
                   style={{ height: '100%', width: '100%' }}
                   scrollWheelZoom={true}
                 >
@@ -1188,7 +1354,7 @@ What would you like to know? 🤲`);
               </h3>
 
               <div className="grid md:grid-cols-2 gap-6">
-                {beneficiaryStories.map((story) => (
+                {filteredStories.map((story) => (
                   <div
                     key={story.id}
                     className={`rounded-2xl overflow-hidden border shadow-sm hover:shadow-lg transition-all cursor-pointer ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'}`}
@@ -1321,8 +1487,10 @@ What would you like to know? 🤲`);
                 <p className="text-xs text-stone-500">Perpetual Impact Through Waqf</p>
               </div>
             </div>
-            <div className="flex items-center gap-6 text-sm text-stone-500">
+            <div className="flex flex-wrap items-center gap-3 text-sm text-stone-500">
               <span>AAOIFI Compliant</span>
+              <span>•</span>
+              <span>BWI/OJK Registered</span>
               <span>•</span>
               <span>KPMG Audited</span>
               <span>•</span>
