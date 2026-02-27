@@ -7,10 +7,24 @@ export const donorData = {
   indirectBeneficiaries: 196,
   barakahScore: 9.2,
   waqifSince: 2024,
+  nextYieldDate: "2026-04-01",
   projectCountries: ["Bangladesh", "Turkey", "Indonesia"],
+  trendData: {
+    waqfPrincipal: { direction: "stable", label: "Preserved" },
+    netYield: { direction: "up", percent: 12, label: "vs Q4 2024" },
+    beneficiaries: { direction: "up", percent: 345, label: "vs Q4 2024" },
+    barakahScore: { direction: "up", percent: 4, label: "vs avg 7.8" }
+  },
+  barakahBreakdown: [
+    { dimension: "Impact Efficiency", score: 9.5, description: "94% of yield reaches beneficiaries" },
+    { dimension: "Beneficiary Reach", score: 9.0, description: "89 direct + 196 indirect lives" },
+    { dimension: "Sustainability", score: 9.0, description: "Projects trending self-sufficient" },
+    { dimension: "Sharia Compliance", score: 10, description: "Full AAOIFI + BWI certification" },
+    { dimension: "Transparency", score: 8.5, description: "Complete audit trail, on-chain ready" }
+  ],
   portfolio: [
-    { name: "IDB Sovereign Sukuk", allocation: 75000, yield: 5.2, type: "Ijarah" },
-    { name: "GIFR Infrastructure Sukuk", allocation: 50000, yield: 6.8, type: "Musharakah" }
+    { name: "IDB Sovereign Sukuk", allocation: 75000, yield: 5.2, type: "Ijarah", maturityDate: "2029-06-15", creditRating: "AAA (S&P)", riskClass: "Sovereign", issuer: "Islamic Development Bank", isin: "XS1234567890", couponFrequency: "Semi-Annual" },
+    { name: "GIFR Infrastructure Sukuk", allocation: 50000, yield: 6.8, type: "Musharakah", maturityDate: "2031-12-01", creditRating: "A+ (Fitch)", riskClass: "Corporate", issuer: "GIFR Capital", isin: "XS0987654321", couponFrequency: "Quarterly" }
   ],
   projects: [
     {

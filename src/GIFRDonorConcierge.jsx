@@ -652,8 +652,8 @@ What would you like to know? 🤲`);
   );
 
   // Stats Card Component
-  const StatCard = ({ icon, label, value, subvalue, color, delay }) => (
-    <div 
+  const StatCard = ({ icon, label, value, subvalue, color, delay, trend }) => (
+    <div
       className="relative overflow-hidden rounded-2xl p-6 backdrop-blur-sm border transition-all duration-500 hover:scale-[1.02] hover:shadow-xl"
       style={{
         background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(250,248,245,0.9) 100%)',
@@ -671,6 +671,14 @@ What would you like to know? 🤲`);
           <p className="text-sm font-medium text-stone-500 tracking-wide uppercase">{label}</p>
           <p className="mt-2 text-3xl font-light text-stone-800" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{value}</p>
           {subvalue && <p className="mt-1 text-sm text-emerald-600 font-medium">{subvalue}</p>}
+          {trend && (
+            <div className={`mt-2 flex items-center gap-1 text-xs font-medium ${
+              trend.direction === 'up' ? 'text-emerald-600' : trend.direction === 'down' ? 'text-red-500' : 'text-stone-500'
+            }`}>
+              <span>{trend.direction === 'up' ? '▲' : trend.direction === 'down' ? '▼' : '●'}</span>
+              <span>{trend.direction === 'up' ? `+${trend.percent}%` : trend.direction === 'stable' ? '' : `-${trend.percent}%`} {trend.label}</span>
+            </div>
+          )}
         </div>
         <div className="text-3xl">{icon}</div>
       </div>
@@ -982,8 +990,16 @@ What would you like to know? 🤲`);
                   touched <span className="font-semibold text-amber-300">{donorData.totalBeneficiaries} lives directly</span> and 
                   created ripples reaching {donorData.indirectBeneficiaries} more.
                 </p>
-                <div className="mt-6 flex gap-4">
-                  <button 
+                {donorData.nextYieldDate && (
+                  <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-emerald-400/20">
+                    <span className="text-amber-300 text-sm">📅</span>
+                    <span className="text-sm text-emerald-100">
+                      Next yield distribution: <span className="font-semibold text-amber-300">{new Date(donorData.nextYieldDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                    </span>
+                  </div>
+                )}
+                <div className="mt-4 flex gap-4">
+                  <button
                     onClick={() => setActiveTab('chat')}
                     className="px-6 py-3 bg-white text-emerald-700 rounded-xl font-medium hover:bg-amber-50 transition-colors flex items-center gap-2"
                   >
@@ -1005,39 +1021,80 @@ What would you like to know? 🤲`);
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <StatCard 
-                icon="💎" 
-                label="Waqf Principal" 
+              <StatCard
+                icon="💎"
+                label="Waqf Principal"
                 value={`$${donorData.waqfPrincipal.toLocaleString()}`}
                 subvalue="Perpetual Endowment"
                 color="#10b981"
                 delay={0}
+                trend={donorData.trendData?.waqfPrincipal}
               />
-              <StatCard 
-                icon="📈" 
-                label="Net Yield 2025" 
+              <StatCard
+                icon="📈"
+                label="Net Yield 2025"
                 value={`$${donorData.netYield2025.toLocaleString()}`}
                 subvalue={`${donorData.yieldToImpact}% deployed to impact`}
                 color="#d4af37"
                 delay={100}
+                trend={donorData.trendData?.netYield}
               />
-              <StatCard 
-                icon="❤️" 
-                label="Lives Touched" 
+              <StatCard
+                icon="❤️"
+                label="Lives Touched"
                 value={donorData.totalBeneficiaries}
                 subvalue={`+${donorData.indirectBeneficiaries} indirect`}
                 color="#ef4444"
                 delay={200}
+                trend={donorData.trendData?.beneficiaries}
               />
-              <StatCard 
-                icon="✨" 
-                label="Barakah Score" 
+              <StatCard
+                icon="✨"
+                label="Barakah Score"
                 value={`${donorData.barakahScore}/10`}
                 subvalue="Exceptional Impact"
                 color="#8b5cf6"
                 delay={300}
+                trend={donorData.trendData?.barakahScore}
               />
             </div>
+
+            {/* Barakah Score Breakdown */}
+            {donorData.barakahBreakdown && (
+              <div className={`rounded-3xl p-6 border shadow-sm ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'}`}>
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className={`text-xl font-semibold ${darkMode ? 'text-stone-100' : 'text-stone-800'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                      Barakah Score Breakdown
+                    </h3>
+                    <p className={`text-sm mt-1 ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>5-dimensional impact assessment</p>
+                  </div>
+                  <div className={`text-3xl font-light ${darkMode ? 'text-amber-400' : 'text-amber-600'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                    {donorData.barakahScore}/10
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  {donorData.barakahBreakdown.map((item, i) => (
+                    <div key={i}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className={`text-sm font-medium ${darkMode ? 'text-stone-200' : 'text-stone-700'}`}>{item.dimension}</span>
+                        <span className={`text-sm font-semibold ${darkMode ? 'text-amber-400' : 'text-amber-600'}`}>{item.score}/10</span>
+                      </div>
+                      <div className={`h-2.5 rounded-full overflow-hidden ${darkMode ? 'bg-stone-700' : 'bg-stone-100'}`}>
+                        <div
+                          className="h-full rounded-full transition-all duration-1000"
+                          style={{
+                            width: `${item.score * 10}%`,
+                            background: item.score >= 9.5 ? 'linear-gradient(90deg, #10b981, #d4af37)' : item.score >= 9 ? '#10b981' : '#d4af37'
+                          }}
+                        />
+                      </div>
+                      <p className={`text-xs mt-1 ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>{item.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Projects Section */}
             <div>
@@ -1159,25 +1216,47 @@ What would you like to know? 🤲`);
 
               <div className={`divide-y ${darkMode ? 'divide-stone-700' : 'divide-stone-100'}`}>
                 {donorData.portfolio.map((asset, i) => (
-                  <div key={i} className={`p-6 flex items-center justify-between transition-colors ${darkMode ? 'hover:bg-stone-700' : 'hover:bg-stone-50'}`}>
-                    <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${darkMode ? 'bg-emerald-900/50' : 'bg-gradient-to-br from-emerald-100 to-emerald-200'}`}>
-                        <span className="text-xl">📜</span>
+                  <div key={i} className={`p-6 transition-colors ${darkMode ? 'hover:bg-stone-700' : 'hover:bg-stone-50'}`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${darkMode ? 'bg-emerald-900/50' : 'bg-gradient-to-br from-emerald-100 to-emerald-200'}`}>
+                          <span className="text-xl">📜</span>
+                        </div>
+                        <div>
+                          <h4 className={`font-medium ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>{asset.name}</h4>
+                          <p className={`text-sm ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>{asset.type} Structure • {asset.issuer}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className={`font-medium ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>{asset.name}</h4>
-                        <p className={`text-sm ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>{asset.type} Structure</p>
+                      <div className="text-right">
+                        <p className={`text-lg font-semibold ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>${asset.allocation.toLocaleString()}</p>
+                        <p className="text-sm text-emerald-500">Yield: {asset.yield}% p.a.</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${darkMode ? 'bg-emerald-900/50 text-emerald-400' : 'bg-emerald-100 text-emerald-700'}`}>
+                          ✓ Sharia Certified
+                        </span>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className={`text-lg font-semibold ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>${asset.allocation.toLocaleString()}</p>
-                      <p className="text-sm text-emerald-500">Yield: {asset.yield}% p.a.</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${darkMode ? 'bg-emerald-900/50 text-emerald-400' : 'bg-emerald-100 text-emerald-700'}`}>
-                        ✓ Sharia Certified
-                      </span>
-                    </div>
+                    {asset.creditRating && (
+                      <div className={`mt-3 ml-16 grid grid-cols-2 md:grid-cols-4 gap-3`}>
+                        <div>
+                          <p className={`text-xs ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>Credit Rating</p>
+                          <p className={`text-sm font-medium ${darkMode ? 'text-stone-200' : 'text-stone-700'}`}>{asset.creditRating}</p>
+                        </div>
+                        <div>
+                          <p className={`text-xs ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>Risk Class</p>
+                          <p className={`text-sm font-medium ${darkMode ? 'text-stone-200' : 'text-stone-700'}`}>{asset.riskClass}</p>
+                        </div>
+                        <div>
+                          <p className={`text-xs ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>Maturity</p>
+                          <p className={`text-sm font-medium ${darkMode ? 'text-stone-200' : 'text-stone-700'}`}>{new Date(asset.maturityDate).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}</p>
+                        </div>
+                        <div>
+                          <p className={`text-xs ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>Coupon</p>
+                          <p className={`text-sm font-medium ${darkMode ? 'text-stone-200' : 'text-stone-700'}`}>{asset.couponFrequency}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
