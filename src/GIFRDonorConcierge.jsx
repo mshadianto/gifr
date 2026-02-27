@@ -1240,7 +1240,7 @@ What would you like to know? 🤲`);
             {/* Compliance Standards */}
             <div className={`rounded-3xl p-6 border shadow-sm ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'}`}>
               <h3 className={`text-xl font-semibold mb-6 ${darkMode ? 'text-stone-100' : 'text-stone-800'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                Compliance Standards
+                Standar Kepatuhan / Compliance Standards
               </h3>
               <div className="grid md:grid-cols-2 gap-6">
                 <div>

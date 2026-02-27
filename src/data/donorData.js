@@ -288,21 +288,21 @@ export const sdgList = [
 
 export const complianceData = {
   international: {
-    label: "International Standards",
+    label: "Standar Internasional / International Standards",
     standards: [
-      { name: "AAOIFI Sharia Standards", status: "Certified", icon: "✅" },
-      { name: "KPMG Islamic Finance Audit", status: "Unqualified (Clean)", icon: "✅" },
-      { name: "ISO 27001 Data Security", status: "Compliant", icon: "✅" }
+      { name: "AAOIFI Sharia Standards (Standar Syariah AAOIFI)", status: "Tersertifikasi / Certified", icon: "✅" },
+      { name: "KPMG Islamic Finance Audit (Audit Keuangan Syariah KPMG)", status: "Wajar Tanpa Pengecualian / Unqualified", icon: "✅" },
+      { name: "ISO 27001 Data Security (Keamanan Data ISO 27001)", status: "Patuh / Compliant", icon: "✅" }
     ]
   },
   indonesia: {
-    label: "Indonesia Compliance (BWI/OJK)",
+    label: "Kepatuhan Indonesia / Indonesia Compliance (BWI/OJK)",
     standards: [
-      { name: "UU No. 41/2004 tentang Wakaf", status: "Compliant", icon: "✅" },
-      { name: "Badan Wakaf Indonesia (BWI)", status: "Registered Nazhir", icon: "✅" },
-      { name: "OJK Sharia Financial Regulation", status: "Licensed", icon: "✅" },
-      { name: "LKS-PWU", status: "Partnered", icon: "✅" },
-      { name: "Nazhir Registration", status: "Active", icon: "✅" }
+      { name: "UU No. 41 Tahun 2004 tentang Wakaf", status: "Patuh / Compliant", icon: "✅" },
+      { name: "Badan Wakaf Indonesia (BWI) — Nazhir Terdaftar", status: "Terdaftar / Registered", icon: "✅" },
+      { name: "Otoritas Jasa Keuangan (OJK) — Regulasi Syariah", status: "Berlisensi / Licensed", icon: "✅" },
+      { name: "LKS-PWU (Lembaga Keuangan Syariah Penerima Wakaf Uang)", status: "Bermitra / Partnered", icon: "✅" },
+      { name: "Pendaftaran Nazhir (Pengelola Wakaf)", status: "Aktif / Active", icon: "✅" }
     ]
   }
 };
