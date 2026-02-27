@@ -654,10 +654,9 @@ What would you like to know? 🤲`);
   // Stats Card Component
   const StatCard = ({ icon, label, value, subvalue, color, delay, trend }) => (
     <div
-      className="relative overflow-hidden rounded-2xl p-6 backdrop-blur-sm border transition-all duration-500 hover:scale-[1.02] hover:shadow-xl"
+      className={`relative overflow-hidden rounded-2xl p-6 backdrop-blur-sm border transition-all duration-500 hover:scale-[1.02] hover:shadow-xl ${darkMode ? 'dark-card border-stone-700' : 'light-card'}`}
       style={{
-        background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(250,248,245,0.9) 100%)',
-        borderColor: 'rgba(212,175,55,0.2)',
+        borderColor: darkMode ? undefined : 'rgba(212,175,55,0.2)',
         animationDelay: `${delay}ms`
       }}
     >
@@ -668,12 +667,12 @@ What would you like to know? 🤲`);
       </div>
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-stone-500 tracking-wide uppercase">{label}</p>
-          <p className="mt-2 text-3xl font-light text-stone-800" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{value}</p>
-          {subvalue && <p className="mt-1 text-sm text-emerald-600 font-medium">{subvalue}</p>}
+          <p className={`text-sm font-medium tracking-wide uppercase ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>{label}</p>
+          <p className={`mt-2 text-3xl font-light ${darkMode ? 'text-stone-100' : 'text-stone-800'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>{value}</p>
+          {subvalue && <p className="mt-1 text-sm text-emerald-500 font-medium">{subvalue}</p>}
           {trend && (
             <div className={`mt-2 flex items-center gap-1 text-xs font-medium ${
-              trend.direction === 'up' ? 'text-emerald-600' : trend.direction === 'down' ? 'text-red-500' : 'text-stone-500'
+              trend.direction === 'up' ? 'text-emerald-500' : trend.direction === 'down' ? 'text-red-500' : darkMode ? 'text-stone-400' : 'text-stone-500'
             }`}>
               <span>{trend.direction === 'up' ? '▲' : trend.direction === 'down' ? '▼' : '●'}</span>
               <span>{trend.direction === 'up' ? `+${trend.percent}%` : trend.direction === 'stable' ? '' : `-${trend.percent}%`} {trend.label}</span>
@@ -687,30 +686,32 @@ What would you like to know? 🤲`);
 
   // Project Card Component
   const ProjectCard = ({ project, onClick }) => (
-    <div 
+    <div
       onClick={() => onClick(project)}
-      className="relative overflow-hidden rounded-2xl p-6 cursor-pointer transition-all duration-500 hover:scale-[1.02] group"
-      style={{
+      className={`relative overflow-hidden rounded-2xl p-6 cursor-pointer transition-all duration-500 hover:scale-[1.02] group ${darkMode ? 'dark-card border border-stone-700' : ''}`}
+      style={darkMode ? {} : {
         background: 'linear-gradient(135deg, #faf8f5 0%, #f5f0e8 100%)',
         border: '1px solid rgba(212,175,55,0.15)'
       }}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"/>
-      
+
       <div className="flex items-start gap-4">
         <div className="text-4xl">{project.image}</div>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-stone-800">{project.name}</h3>
+            <h3 className={`font-semibold ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>{project.name}</h3>
             <span className={`px-2 py-0.5 text-xs rounded-full ${
-              project.status === 'OPERATIONAL' ? 'bg-emerald-100 text-emerald-700'
-                : project.status === 'SCALING' ? 'bg-amber-100 text-amber-700'
-                : 'bg-blue-100 text-blue-700'
+              project.status === 'OPERATIONAL'
+                ? darkMode ? 'bg-emerald-900/50 text-emerald-400' : 'bg-emerald-100 text-emerald-700'
+                : project.status === 'SCALING'
+                  ? darkMode ? 'bg-amber-900/50 text-amber-400' : 'bg-amber-100 text-amber-700'
+                  : darkMode ? 'bg-blue-900/50 text-blue-400' : 'bg-blue-100 text-blue-700'
             }`}>
               {project.status}
             </span>
           </div>
-          <p className="text-sm text-stone-500 mt-1">
+          <p className={`text-sm mt-1 ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>
             📍 {project.location}
             {project.country === 'Indonesia' && ' 🇮🇩'}
             {project.country === 'Bangladesh' && ' 🇧🇩'}
@@ -719,32 +720,32 @@ What would you like to know? 🤲`);
 
           <div className="mt-4 grid grid-cols-2 gap-4">
             <div>
-              <p className="text-xs text-stone-400 uppercase tracking-wide">Allocated</p>
-              <p className="text-lg font-semibold text-stone-700">{formatProjectCurrency(project)}</p>
+              <p className={`text-xs uppercase tracking-wide ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>Allocated</p>
+              <p className={`text-lg font-semibold ${darkMode ? 'text-stone-200' : 'text-stone-700'}`}>{formatProjectCurrency(project)}</p>
             </div>
             <div>
-              <p className="text-xs text-stone-400 uppercase tracking-wide">Beneficiaries</p>
-              <p className="text-lg font-semibold text-emerald-600">{project.beneficiaries} lives</p>
+              <p className={`text-xs uppercase tracking-wide ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>Beneficiaries</p>
+              <p className="text-lg font-semibold text-emerald-500">{project.beneficiaries} lives</p>
             </div>
           </div>
-          
+
           <div className="mt-4">
-            <div className="flex justify-between text-xs text-stone-500 mb-1">
+            <div className={`flex justify-between text-xs mb-1 ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>
               <span>Progress</span>
               <span>{project.progress}%</span>
             </div>
-            <div className="h-2 bg-stone-200 rounded-full overflow-hidden">
-              <div 
+            <div className={`h-2 rounded-full overflow-hidden ${darkMode ? 'bg-stone-700' : 'bg-stone-200'}`}>
+              <div
                 className="h-full rounded-full transition-all duration-1000"
-                style={{ 
+                style={{
                   width: `${project.progress}%`,
                   background: 'linear-gradient(90deg, #10b981, #d4af37)'
                 }}
               />
             </div>
           </div>
-          
-          <p className="text-xs text-stone-400 mt-3">Last update: {project.lastUpdate}</p>
+
+          <p className={`text-xs mt-3 ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>Last update: {project.lastUpdate}</p>
         </div>
       </div>
     </div>
@@ -827,12 +828,12 @@ What would you like to know? 🤲`);
     ];
     
     return (
-      <div className="flex flex-wrap gap-2 p-4 border-t border-stone-100">
+      <div className={`flex flex-wrap gap-2 p-4 border-t ${darkMode ? 'border-stone-700' : 'border-stone-100'}`}>
         {actions.map((action, i) => (
           <button
             key={i}
             onClick={() => onSelect(action)}
-            className="px-4 py-2 text-sm bg-stone-100 hover:bg-emerald-100 hover:text-emerald-700 rounded-full transition-all duration-300 text-stone-600"
+            className={`px-4 py-2 text-sm rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${darkMode ? 'bg-stone-700 text-stone-300 hover:bg-emerald-900/50 hover:text-emerald-400' : 'bg-stone-100 text-stone-600 hover:bg-emerald-100 hover:text-emerald-700'}`}
           >
             {action}
           </button>
@@ -876,7 +877,7 @@ What would you like to know? 🤲`);
 
       {/* Header */}
       <header className={`sticky top-0 z-50 backdrop-blur-xl border-b transition-colors duration-300 ${darkMode ? 'bg-stone-900/80 border-stone-700' : 'bg-white/80 border-amber-100'}`}>
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               {/* Logo */}
@@ -955,10 +956,10 @@ What would you like to know? 🤲`);
                   setActiveTab(tab.id);
                   if (tab.id === 'chat') setShowNotification(false);
                 }}
-                className={`px-5 py-3 text-sm font-medium rounded-t-xl transition-all duration-300 flex items-center gap-2 ${
+                className={`px-5 py-3 text-sm font-medium rounded-t-xl transition-all duration-300 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
                   activeTab === tab.id
-                    ? 'bg-white text-emerald-700 border-t border-x border-amber-200 shadow-sm -mb-px'
-                    : 'text-stone-500 hover:text-stone-700 hover:bg-white/50'
+                    ? darkMode ? 'bg-stone-800 text-emerald-400 border-t border-x border-stone-600 shadow-sm -mb-px' : 'bg-white text-emerald-700 border-t border-x border-amber-200 shadow-sm -mb-px'
+                    : darkMode ? 'text-stone-400 hover:text-stone-200 hover:bg-stone-800/50' : 'text-stone-500 hover:text-stone-700 hover:bg-white/50'
                 }`}
               >
                 <span>{tab.icon}</span>
@@ -973,7 +974,7 @@ What would you like to know? 🤲`);
       </header>
 
       {/* Main Content */}
-      <main ref={dashboardRef} className="max-w-7xl mx-auto px-6 py-8">
+      <main ref={dashboardRef} className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
         {/* Dashboard Tab */}
         {activeTab === 'dashboard' && (
           <div className="space-y-8 animate-fadeIn">
@@ -982,7 +983,7 @@ What would you like to know? 🤲`);
               <IslamicPattern />
               <div className="relative z-10">
                 <p className="text-emerald-200 text-sm">Assalamu'alaikum</p>
-                <h2 className="text-3xl font-light mt-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                <h2 className="text-2xl sm:text-3xl font-light mt-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                   Welcome back, {donorData.name.split(' ')[1]}
                 </h2>
                 <p className="mt-4 text-emerald-100 max-w-xl leading-relaxed">
@@ -1001,11 +1002,11 @@ What would you like to know? 🤲`);
                 <div className="mt-4 flex gap-4">
                   <button
                     onClick={() => setActiveTab('chat')}
-                    className="px-6 py-3 bg-white text-emerald-700 rounded-xl font-medium hover:bg-amber-50 transition-colors flex items-center gap-2"
+                    className="px-6 py-3 bg-white text-emerald-700 rounded-xl font-medium hover:bg-amber-50 transition-colors flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-amber-400"
                   >
                     <span>💬</span> Talk to Aminah
                   </button>
-                  <button className="px-6 py-3 bg-emerald-600/50 text-white rounded-xl font-medium hover:bg-emerald-600 transition-colors border border-emerald-400/30">
+                  <button className="px-6 py-3 bg-emerald-600/50 text-white rounded-xl font-medium hover:bg-emerald-600 transition-colors border border-emerald-400/30 focus:outline-none focus:ring-2 focus:ring-emerald-400">
                     View Full Report
                   </button>
                 </div>
@@ -1061,7 +1062,7 @@ What would you like to know? 🤲`);
 
             {/* Barakah Score Breakdown */}
             {donorData.barakahBreakdown && (
-              <div className={`rounded-3xl p-6 border shadow-sm ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'}`}>
+              <div className={`rounded-3xl p-6 border shadow-sm animate-fadeIn ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'}`}>
                 <div className="flex items-center justify-between mb-6">
                   <div>
                     <h3 className={`text-xl font-semibold ${darkMode ? 'text-stone-100' : 'text-stone-800'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
@@ -1100,10 +1101,10 @@ What would you like to know? 🤲`);
             <div>
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-xl font-semibold text-stone-800" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                  <h3 className={`text-xl font-semibold ${darkMode ? 'text-stone-100' : 'text-stone-800'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                     Your Impact Projects
                   </h3>
-                  <p className="text-sm text-stone-500 mt-1">Where your Waqf is making a difference across {donorData.projectCountries.length} countries</p>
+                  <p className={`text-sm mt-1 ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>Where your Waqf is making a difference across {donorData.projectCountries.length} countries</p>
                 </div>
               </div>
 
@@ -1113,7 +1114,7 @@ What would you like to know? 🤲`);
                   <button
                     key={c.id}
                     onClick={() => setCountryFilter(c.id)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
                       countryFilter === c.id
                         ? 'bg-emerald-600 text-white'
                         : darkMode ? 'bg-stone-700 text-stone-300 hover:bg-stone-600' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
@@ -1136,20 +1137,20 @@ What would you like to know? 🤲`);
             </div>
 
             {/* Reinvestment CTA */}
-            <div className="relative overflow-hidden rounded-3xl p-8 border-2 border-dashed border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50">
+            <div className={`relative overflow-hidden rounded-3xl p-8 border-2 border-dashed animate-fadeIn ${darkMode ? 'border-amber-700 bg-gradient-to-br from-amber-900/20 to-orange-900/20' : 'border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50'}`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-2xl font-light text-stone-800" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                  <h3 className={`text-2xl font-light ${darkMode ? 'text-stone-100' : 'text-stone-800'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                     Expand Your Barakah
                   </h3>
-                  <p className="text-stone-600 mt-2 max-w-lg">
-                    Adding $10,000 to your Waqf could educate 1 additional child every year, perpetually. 
+                  <p className={`mt-2 max-w-lg ${darkMode ? 'text-stone-300' : 'text-stone-600'}`}>
+                    Adding $10,000 to your Waqf could educate 1 additional child every year, perpetually.
                     Ask Aminah for a detailed impact simulation.
                   </p>
                 </div>
                 <button
                   onClick={() => setShowImpactSimulator(true)}
-                  className="px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl font-medium hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg hover:shadow-xl"
+                  className="px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl font-medium hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-amber-400"
                 >
                   Calculate Impact
                 </button>
@@ -1275,7 +1276,7 @@ What would you like to know? 🤲`);
                     <p className={`text-sm ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>Report ID</p>
                     <p className={`font-medium ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>KPMG-GIFR-2025-Q4-FINAL</p>
                   </div>
-                  <button className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors">
+                  <button className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     Download Audit PDF
                   </button>
                 </div>
@@ -1482,7 +1483,7 @@ What would you like to know? 🤲`);
         {activeTab === 'chat' && (
           <div className="animate-fadeIn">
             <div className="max-w-3xl mx-auto">
-              <div className="rounded-3xl bg-white border border-stone-200 shadow-lg overflow-hidden">
+              <div className={`rounded-3xl shadow-lg overflow-hidden border ${darkMode ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'}`}>
                 {/* Chat Header */}
                 <div className="p-4 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-2xl">
@@ -1499,26 +1500,26 @@ What would you like to know? 🤲`);
                 </div>
 
                 {/* Chat Messages */}
-                <div className="h-[500px] overflow-y-auto p-6 space-y-6 bg-gradient-to-b from-stone-50 to-white scrollbar-thin">
+                <div className={`h-[60vh] min-h-[300px] overflow-y-auto p-6 space-y-6 scrollbar-thin ${darkMode ? 'bg-gradient-to-b from-stone-800 to-stone-900' : 'bg-gradient-to-b from-stone-50 to-white'}`}>
                   {chatMessages.map(message => (
                     <ChatMessage key={message.id} message={message} />
                   ))}
-                  
+
                   {isTyping && (
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-lg">
                         🌙
                       </div>
-                      <div className="px-4 py-3 bg-white rounded-2xl rounded-tl-sm border border-stone-200 shadow-sm">
+                      <div className={`px-4 py-3 rounded-2xl rounded-tl-sm border shadow-sm ${darkMode ? 'bg-stone-700 border-stone-600' : 'bg-white border-stone-200'}`}>
                         <div className="flex gap-1">
-                          <span className="w-2 h-2 bg-stone-300 rounded-full animate-bounce"/>
-                          <span className="w-2 h-2 bg-stone-300 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}/>
-                          <span className="w-2 h-2 bg-stone-300 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}/>
+                          <span className={`w-2 h-2 rounded-full animate-bounce ${darkMode ? 'bg-stone-500' : 'bg-stone-300'}`}/>
+                          <span className={`w-2 h-2 rounded-full animate-bounce ${darkMode ? 'bg-stone-500' : 'bg-stone-300'}`} style={{ animationDelay: '0.1s' }}/>
+                          <span className={`w-2 h-2 rounded-full animate-bounce ${darkMode ? 'bg-stone-500' : 'bg-stone-300'}`} style={{ animationDelay: '0.2s' }}/>
                         </div>
                       </div>
                     </div>
                   )}
-                  
+
                   <div ref={chatEndRef} />
                 </div>
 
@@ -1526,7 +1527,7 @@ What would you like to know? 🤲`);
                 <QuickActions onSelect={(action) => handleSendMessage(action)} />
 
                 {/* Input Area */}
-                <div className="p-4 border-t border-stone-100 bg-white">
+                <div className={`p-4 border-t ${darkMode ? 'border-stone-700 bg-stone-800' : 'border-stone-100 bg-white'}`}>
                   <div className="flex gap-3">
                     <input
                       type="text"
@@ -1534,16 +1535,16 @@ What would you like to know? 🤲`);
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && handleSendMessage(inputValue)}
                       placeholder="Ask Aminah about your Waqf impact..."
-                      className="flex-1 px-4 py-3 rounded-xl border border-stone-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                      className={`flex-1 px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all ${darkMode ? 'bg-stone-700 border-stone-600 text-stone-100 placeholder-stone-400' : 'border-stone-200'}`}
                     />
                     <button
                       onClick={() => handleSendMessage(inputValue)}
-                      className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl font-medium hover:from-emerald-700 hover:to-emerald-800 transition-all shadow-md hover:shadow-lg"
+                      className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl font-medium hover:from-emerald-700 hover:to-emerald-800 transition-all shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     >
                       Send
                     </button>
                   </div>
-                  <p className="text-xs text-stone-400 mt-2 text-center">
+                  <p className={`text-xs mt-2 text-center ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>
                     All financial figures are audited by KPMG Islamic Finance. Aminah never invents data.
                   </p>
                 </div>
@@ -1554,7 +1555,7 @@ What would you like to know? 🤲`);
       </main>
 
       {/* Footer */}
-      <footer className="mt-12 border-t border-stone-200 bg-white/50 backdrop-blur-sm">
+      <footer className={`mt-12 border-t backdrop-blur-sm ${darkMode ? 'border-stone-700 bg-stone-900/50' : 'border-stone-200 bg-white/50'}`}>
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -1562,11 +1563,11 @@ What would you like to know? 🤲`);
                 <span className="text-lg">🌙</span>
               </div>
               <div>
-                <p className="font-medium text-stone-800">Global Islamic Fund for Refugees</p>
-                <p className="text-xs text-stone-500">Perpetual Impact Through Waqf</p>
+                <p className={`font-medium ${darkMode ? 'text-stone-100' : 'text-stone-800'}`}>Global Islamic Fund for Refugees</p>
+                <p className={`text-xs ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>Perpetual Impact Through Waqf</p>
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-3 text-sm text-stone-500">
+            <div className={`flex flex-wrap items-center gap-3 text-sm ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>
               <span>AAOIFI Compliant</span>
               <span>•</span>
               <span>BWI/OJK Registered</span>
